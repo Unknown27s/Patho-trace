@@ -11,6 +11,10 @@ export default function CoopBoard() {
   const by = (cls) => cows.filter((c) => c.prediction?.class === cls).length;
   const high = by("High"), mod = by("Moderate"), low = by("Low"), no = by("No Risk");
   const unpredicted = cows.length - predicted.length;
+  // Industry udder-health target: <20% of animals with iSCC ≥ 200k
+  const over200 = cows.filter((c) => Number(c.scc) >= 200).length;
+  const over200Pct = cows.length ? Math.round((over200 / cows.length) * 100) : 0;
+  const targetMet = over200Pct < 20;
   const avgScc = cows.length ? Math.round(cows.reduce((a, c) => a + (Number(c.scc) || 0), 0) / cows.length) : 0;
   const avgYield = cows.length ? (cows.reduce((a, c) => a + (Number(c.yieldL) || 0), 0) / cows.length).toFixed(1) : 0;
   const totalMilk = cows.reduce((a, c) => a + (Number(c.yieldL) || 0), 0);
@@ -61,6 +65,16 @@ export default function CoopBoard() {
           <div className="bg-white rounded-2xl border p-4"><div className="text-xs text-slate-500 font-bold">New suspected cases</div><div className="font-extrabold text-3xl text-red-600">{high + mod}</div><div className="text-xs text-slate-400">{high} high • {mod} moderate</div></div>
           <div className="bg-white rounded-2xl border p-4"><div className="text-xs text-slate-500 font-bold">Avg SCC / Avg yield</div><div className="font-extrabold text-3xl">{avgScc}k</div><div className="text-xs text-slate-400">{avgYield} L/cow • {totalMilk.toFixed(0)} L/day</div></div>
           <div className="bg-white rounded-2xl border border-red-200 p-4"><div className="text-xs text-red-600 font-bold">Est. production loss</div><div className="font-extrabold text-3xl text-red-600">{lossL.toFixed(0)} L</div><div className="text-xs text-slate-400">≈ ₹{Math.round(lossL * 40).toLocaleString("en-IN")}/day at ₹40/L</div></div>
+        </div>
+
+        <div className={`rounded-2xl border p-4 flex flex-wrap items-center justify-between gap-2 ${targetMet ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"}`}>
+          <div className="text-sm">
+            <b>🎯 Herd udder-health target:</b> under 20% of animals with SCC ≥ 200k —
+            now <b className={targetMet ? "text-emerald-700" : "text-red-700"}>{over200Pct}% ({over200}/{cows.length})</b> → {targetMet ? "TARGET MET ✓" : "ACTION NEEDED — screen high-SCC cows, divert their milk"}
+          </div>
+          <div className="w-full sm:w-64 h-2.5 bg-white rounded-full border overflow-hidden">
+            <div className={`h-full rounded-full ${targetMet ? "bg-emerald-500" : "bg-red-500"}`} style={{ width: `${Math.min(100, over200Pct)}%` }} />
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl border p-4">

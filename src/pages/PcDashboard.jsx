@@ -13,7 +13,7 @@ import { MODEL_URL } from "../config";
 export default function PcDashboard() {
   const { t } = useLanguage();
   const { playing, toggle } = useAudioBriefing();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { cows, source, predictAll } = useHerd();
   const nav = useNavigate();
   return (
@@ -25,7 +25,6 @@ export default function PcDashboard() {
             <div className="text-xs text-slate-500 mt-1 flex items-center gap-2">{t("greeting")} • {t("herdSub")} • {t("lastSync")} <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse inline-block"></span> {t("live")}</div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-800 text-[11px] font-bold">{user?.role === "doctor" ? "🩺 Doctor view" : "🌾 Farmer view"}</span>
             <span className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold"><span className="material-symbols-outlined text-[16px]">device_thermostat</span> {t("thi")}</span>
             <LanguageSwitcher/>
             <button onClick={toggle} className={`h-9 px-4 rounded-full text-xs font-bold flex items-center gap-1.5 ${playing ? "bg-red-600 text-white animate-pulse":"bg-emerald-700 text-white"}`}><span className="material-symbols-outlined text-[16px]">{playing ? "pause":"volume_up"}</span> {playing ? t("briefingPlaying") : t("audioBriefing")}</button>

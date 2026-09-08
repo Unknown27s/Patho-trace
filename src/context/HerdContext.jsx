@@ -3,6 +3,7 @@ import { predictSingle, riskClass } from "../lib/predict";
 
 const HerdContext = createContext(null);
 const LS_KEY = "pathotracer_herd_v1";
+const LS_EVENTS = "pathotracer_events_v1";
 
 // Demo starter herd — same 16-feature shape the Excel template uses,
 // so Upload replaces this but the app works before any upload.
@@ -68,6 +69,33 @@ export function HerdProvider({ children }) {
   const cowsRef = useRef(cows);
   useEffect(() => { cowsRef.current = cows; }, [cows]);
 
+  // Health event log per cow: farmer records CMT/symptoms/treatments,
+  // vet reviews + sets outcomes. Persisted separately from herd rows.
+  const [events, setEvents] = useState(() => {
+    try {
+      const raw = localStorage.getItem(LS_EVENTS);
+      return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(LS_EVENTS, JSON.stringify(events)); } catch { /* ignore */ }
+  }, [events]);
+
+  const cowEvents = useCallback((id) => events[id] || [], [events]);
+
+  const addEvent = useCallback((id, entry) => {
+    const ev = { id: `E${Date.now()}`, at: new Date().toISOString(), outcome: "open", ...entry };
+    setEvents((prev) => ({ ...prev, [id]: [ev, ...(prev[id] || [])] }));
+    return ev;
+  }, []);
+
+  const setOutcome = useCallback((cowId, eventId, outcome) => {
+    setEvents((prev) => ({
+      ...prev,
+      [cowId]: (prev[cowId] || []).map((e) => (e.id === eventId ? { ...e, outcome } : e)),
+    }));
+  }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem(LS_KEY, JSON.stringify(cows));
@@ -120,7 +148,7 @@ export function HerdProvider({ children }) {
   }, [cows, predictCow]);
 
   return (
-    <HerdContext.Provider value={{ cows, source, replaceHerd, resetDemo, predictCow, predictAll }}>
+    <HerdContext.Provider value={{ cows, source, replaceHerd, resetDemo, predictCow, predictAll, events, cowEvents, addEvent, setOutcome }}>
       {children}
     </HerdContext.Provider>
   );

@@ -13,10 +13,15 @@ import { useAudioBriefing } from "../hooks/useAudioBriefing";
 export default function MobileDashboard() {
   const { t } = useLanguage();
   const { playing, toggle } = useAudioBriefing();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { cows, source } = useHerd();
   const nav = useNavigate();
   const high = cows.filter((c) => c.prediction?.class === "High").length;
+  const mod = cows.filter((c) => c.prediction?.class === "Moderate").length;
+  const low = cows.filter((c) => c.prediction?.class === "Low").length;
+  const watch = mod + low;
+  const flagged = high + mod;
+  const avgScc = cows.length ? Math.round(cows.reduce((a, c) => a + (Number(c.scc) || 0), 0) / cows.length) : 0;
   const healthy = cows.filter((c) => c.prediction?.class === "No Risk").length;
   return (
     <>
@@ -26,7 +31,6 @@ export default function MobileDashboard() {
             <Logo size={40} showText={true} />
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="hidden sm:inline-flex px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold">{user?.role === "doctor" ? "🩺 Doctor" : "🌾 Farmer"}</span>
             <LanguageSwitcher compact/>
             <button onClick={toggle} className={`w-9 h-9 rounded-full flex items-center justify-center ${playing?"bg-red-600 text-white":"bg-emerald-700 text-white"}`}><span className="material-symbols-outlined text-[18px]">{playing ? 'pause' : 'volume_up'}</span></button>
             <button onClick={()=>{logout(); nav("/login");}} title="Sign out" className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center"><span className="material-symbols-outlined text-[18px]">logout</span></button>
@@ -51,8 +55,8 @@ export default function MobileDashboard() {
           <div className="absolute bottom-3 left-3 right-3 space-y-2">
             <div><p className="text-[11px] text-emerald-300 uppercase tracking-wider">Automated Audio Briefing</p><h4 className="font-jakarta font-bold text-white">Today's Barn Health Pulse</h4></div>
             <div className="bg-white/15 backdrop-blur border border-white/20 rounded-xl p-2 flex items-center justify-between gap-2">
-              <button onClick={toggle} className="flex-1 flex items-center gap-2 text-left"><div className={`w-9 h-9 rounded-full flex items-center justify-center ${playing?"bg-red-500":"bg-emerald-500"}`}><span className="material-symbols-outlined text-white">{playing ? 'pause' : 'play_arrow'}</span></div><div><span className="text-xs font-bold text-white block">{playing ? t("briefingPlaying") : t("audioBriefing")}</span><span className="text-[11px] text-white/70">4 high-risk cattle</span></div></button>
-              <span className="h-8 px-3 rounded-lg bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center">हिन्दी</span>
+              <button onClick={toggle} className="flex-1 flex items-center gap-2 text-left"><div className={`w-9 h-9 rounded-full flex items-center justify-center ${playing?"bg-red-500":"bg-emerald-500"}`}><span className="material-symbols-outlined text-white">{playing ? 'pause' : 'play_arrow'}</span></div><div><span className="text-xs font-bold text-white block">{playing ? t("briefingPlaying") : t("audioBriefing")}</span><span className="text-[11px] text-white/70">{flagged ? `${flagged} animals need attention` : "Predict herd to see attention list"}</span></div></button>
+              <span className="h-8 px-3 rounded-lg bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center">EN</span>
             </div>
           </div>
         </section>
@@ -110,12 +114,12 @@ export default function MobileDashboard() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             <div className="bg-white rounded-xl p-3 border shadow-sm"><div className="text-xs font-semibold text-slate-500">{t("totalHerd")}</div><div className="font-jakarta font-extrabold text-2xl">{cows.length}</div><div className="text-xs text-slate-500">{source}</div></div>
             <div className="bg-white rounded-xl p-3 border border-emerald-100"><div className="text-xs font-semibold text-emerald-700">{t("healthy")}</div><div className="font-jakarta font-extrabold text-2xl text-emerald-700">{healthy || "—"}</div><span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">{t("safe")}</span></div>
-            <div className="bg-white rounded-xl p-3 border border-sky-100"><div className="text-xs font-semibold text-sky-700">{t("watchlist")}</div><div className="font-jakarta font-extrabold text-2xl text-sky-700">09</div><span className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-bold">{t("mild")}</span></div>
-            <div className="bg-white rounded-xl p-3 border border-rose-100"><div className="text-xs font-semibold text-rose-700">{t("highRisk")}</div><div className="font-jakarta font-extrabold text-2xl text-rose-600">04</div><span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">{t("critical")}</span></div>
+            <div className="bg-white rounded-xl p-3 border border-sky-100"><div className="text-xs font-semibold text-sky-700">{t("watchlist")}</div><div className="font-jakarta font-extrabold text-2xl text-sky-700">{watch}</div><span className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-bold">{t("mild")}</span></div>
+            <div className="bg-white rounded-xl p-3 border border-rose-100"><div className="text-xs font-semibold text-rose-700">{t("highRisk")}</div><div className="font-jakarta font-extrabold text-2xl text-rose-600">{high}</div><span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">{t("critical")}</span></div>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
             <div className="bg-white rounded-xl p-3 border"><div className="text-xs text-slate-500 font-semibold flex justify-between">{t("todaysMilk")} <span className="material-symbols-outlined text-sky-600 text-[16px]">water_drop</span></div><div className="font-jakarta font-extrabold text-xl">{cows.reduce((a, c) => a + (Number(c.yieldL) || 0), 0).toFixed(0)} <span className="text-xs font-normal">L/day</span></div><div className="text-xs text-red-600 font-bold">live from Excel</div></div>
-            <div className="bg-white rounded-xl p-3 border"><div className="text-xs text-slate-500 font-semibold flex justify-between">{t("bulkScc")} <span className="material-symbols-outlined text-amber-600 text-[16px]">biotech</span></div><div className="font-jakarta font-extrabold text-xl">245k</div><div className="text-xs text-amber-700 font-bold">{t("gradeB")}</div></div>
+            <div className="bg-white rounded-xl p-3 border"><div className="text-xs text-slate-500 font-semibold flex justify-between">{t("bulkScc")} <span className="material-symbols-outlined text-amber-600 text-[16px]">biotech</span></div><div className="font-jakarta font-extrabold text-xl">{avgScc}k</div><div className="text-xs text-amber-700 font-bold">{avgScc > 200 ? "Above 200k line" : t("gradeB")}</div></div>
           </div>
         </section>
 
@@ -132,7 +136,7 @@ export default function MobileDashboard() {
         </section>
 
         <section id="priority" className="space-y-3 lg:col-span-8">
-          <div className="flex justify-between items-center px-1"><div><h3 className="font-jakarta font-bold text-sm">{t("animalTableTitle")}</h3><span className="text-xs text-slate-500">4 flagged • CMT paddle required</span></div><span className="px-3 py-1 rounded-full bg-slate-100 border text-xs font-bold">Filter (4)</span></div>
+          <div className="flex justify-between items-center px-1"><div><h3 className="font-jakarta font-bold text-sm">{t("animalTableTitle")}</h3><span className="text-xs text-slate-500">{flagged} flagged • CMT paddle required</span></div><span className="px-3 py-1 rounded-full bg-slate-100 border text-xs font-bold">Filter ({flagged})</span></div>
           <div className="bg-white rounded-2xl p-4 border-2 border-red-500 shadow-sm space-y-3">
             <div className="flex items-start justify-between gap-2"><div className="flex gap-3"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqpb-AIQJbaaZPnOJ4fHMCRQJDq2DCdfd1XtUDisbRoTcuYbwKAQwXzL2pzvVl5DKGWHnq8JCvMU_AHAR81d3tagGfYVttI2WTQEo03TQ4SAT79mv1NI5BRoUGIus3laBT83IBYUryT04g7baUf9lzPjaKfHwHkU5C8AHj4UNdopePUQ8d_QAtcKICEhgH3RkRgpMEcUh5N9OqGgqVAy-va4kDocK87b-n0rIaZ5dvVJlpGkqmoeFT2g" className="w-16 h-16 rounded-xl object-cover" alt="ganga"/><div><div className="font-jakarta font-extrabold">COW-024 'Ganga'</div><div className="text-xs text-slate-500">Gir Cross • 4th Lact • #4402</div><span className="inline-block mt-1 text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">12.5 L (-12%)</span></div></div><span className="px-2 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200 text-xs font-extrabold">87% (7-10d)</span></div>
             <div className="bg-slate-50 rounded-xl p-2.5 border"><div className="flex justify-between text-xs font-semibold mb-1.5"><span className="flex items-center gap-1"><span className="material-symbols-outlined text-rose-600 text-[16px]">thermostat</span> 4-Quadrant Udder Heat</span><span className="bg-rose-50 border border-rose-200 px-2 py-0.5 rounded text-rose-700">RR +1.4 mS/cm</span></div><div className="grid grid-cols-2 gap-1.5 text-xs text-center"><div className="bg-white border border-emerald-200 rounded-lg py-1.5 font-semibold text-emerald-800">FL 37.8° Normal</div><div className="bg-white border border-emerald-200 rounded-lg py-1.5 font-semibold text-emerald-800">FR 37.9° Normal</div><div className="bg-white border rounded-lg py-1.5">RL 38.2° Mild</div><div className="bg-rose-600 text-white rounded-lg py-1.5 font-bold">RR 39.1° High!</div></div></div>
@@ -152,7 +156,7 @@ export default function MobileDashboard() {
         </section>
 
         <section className="bg-white rounded-2xl p-4 border shadow-sm space-y-3 lg:col-span-7">
-          <div className="flex justify-between items-center">            <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><span className="material-symbols-outlined">assignment_turned_in</span></div><div><h3 className="font-jakarta font-bold text-sm">{t("sopTitle")}</h3><span className="text-xs text-slate-500">दैनिक निवारक कार्य</span></div></div><span className="px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">1/3 Done</span></div>
+          <div className="flex justify-between items-center">            <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><span className="material-symbols-outlined">assignment_turned_in</span></div><div><h3 className="font-jakarta font-bold text-sm">{t("sopTitle")}</h3><span className="text-xs text-slate-500">Daily preventive tasks</span></div></div><span className="px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">1/3 Done</span></div>
           <div className="space-y-2 text-xs">
             <div className="bg-slate-50 rounded-xl p-3 flex gap-3 border border-rose-100"><div className="w-6 h-6 rounded-full border-2 border-rose-400 bg-white flex-shrink-0"></div><div><div className="flex justify-between gap-2"><b>1. Strip Cup & 4-Well CMT</b><span className="px-2 py-0.5 rounded bg-rose-100 text-rose-700 font-bold text-[11px]">Urgent</span></div><p className="text-slate-500 mt-1">Test COW-024 & 018 before cluster attach</p></div></div>
             <div className="bg-emerald-50 rounded-xl p-3 flex gap-3 border border-emerald-200"><div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0"><span className="material-symbols-outlined text-[16px]">check</span></div><div><div className="flex justify-between gap-2"><b className="line-through text-slate-500">2. Vacuum Calibration</b><span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[11px]">Done ✓</span></div><p className="text-slate-500 mt-1">42 kPa • 60:40 ratio</p></div></div>

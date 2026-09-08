@@ -1,15 +1,15 @@
-import { createContext, useContext, useState } from "react";
-import { translations, langOrder } from "../i18n/translations";
+import { createContext, useContext } from "react";
+import { translations } from "../i18n/translations";
 
 const LanguageContext = createContext();
 
+// English-only: lang is fixed to "en". The t() API is kept so every
+// consumer keeps working unchanged.
 export function LanguageProvider({ children }){
-  const [lang, setLang] = useState("en");
-  const t = (key) => (translations[lang] && translations[lang][key]) || translations["en"][key] || key;
-  const cycleLang = () => setLang((prev) => {
-    const i = langOrder.indexOf(prev);
-    return langOrder[(i + 1) % langOrder.length];
-  });
+  const lang = "en";
+  const t = (key) => translations[lang][key] || key;
+  const setLang = () => {};
+  const cycleLang = () => {};
   return (
     <LanguageContext.Provider value={{ lang, setLang, cycleLang, t }}>
       {children}

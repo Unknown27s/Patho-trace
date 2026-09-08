@@ -197,8 +197,18 @@ function noiseFor(metric) {
 }
 function round1(v) { return Math.round(v * 10) / 10; }
 
-export const TREND_METRICS = [
-  { key: "yield", label: "Milk yield", unit: "L/day", badWhen: "falling", icon: "water_drop" },
+// Worst-affected quarter from EC residuals (LF/RF/LR/RR)
+const EC_MAP = [["LF", "lnVAR_EC_LF"], ["RF", "lnVAR_EC_RF"], ["LR", "lnVAR_EC_LR"], ["RR", "lnVAR_EC_RR"]];
+export function worstQuarter(cow) {
+  let best = { q: "—", val: 0 };
+  EC_MAP.forEach(([q, k]) => {
+    const v = F(cow, k);
+    if (v > best.val) best = { q, val: v };
+  });
+  return best;
+}
+
+export const TREND_METRICS = [  { key: "yield", label: "Milk yield", unit: "L/day", badWhen: "falling", icon: "water_drop" },
   { key: "scc", label: "SCC", unit: "k cells/mL", badWhen: "rising", icon: "biotech" },
   { key: "cond", label: "Milk conductivity", unit: "mS/cm", badWhen: "rising", icon: "electric_bolt" },
   { key: "temp", label: "Body temperature", unit: "°C", badWhen: "rising", icon: "device_thermostat" },

@@ -3,8 +3,9 @@ import { useState } from "react";
 import { useHerd } from "../context/HerdContext";
 import { useAuth } from "../context/AuthContext";
 import { riskStyle, adviceFor, farmerAdvice } from "../lib/predict";
-import { deriveIndicators, factorContributions, aiInterpretation, trendSeries, TREND_METRICS } from "../lib/clinical";
+import { deriveIndicators, factorContributions, aiInterpretation, trendSeries, worstQuarter, TREND_METRICS } from "../lib/clinical";
 import TrendChart from "../components/TrendChart";
+import HealthLog from "../components/HealthLog";
 import { FEATURE_ORDER } from "../config";
 
 const SEV_DOT = { high: "bg-red-500", med: "bg-amber-400", low: "bg-lime-400", ok: "bg-emerald-500" };
@@ -166,6 +167,7 @@ export default function CowDetail() {
             <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-sm">
               🐄 <b>About {cow.name}:</b> {cow.breed} • {cow.age} • {cow.lactation} lactation • {cow.status} • {cow.prevMastitis || 0} past udder sickness • Milk {cow.yieldL} L/day.
             </div>
+            <HealthLog cowId={cow.id} role="farmer" />
           </>
         ) : (
           <>
@@ -187,9 +189,10 @@ export default function CowDetail() {
 
             <div className="bg-white rounded-2xl border p-4">
               <h3 className="font-extrabold text-sm flex items-center gap-2"><span className="material-symbols-outlined text-emerald-700">biotech</span> SCC & subclinical analysis</h3>
-              <div className="mt-2 grid sm:grid-cols-3 gap-2 text-xs text-center">
+              <div className="mt-2 grid sm:grid-cols-4 gap-2 text-xs text-center">
                 <div className="bg-slate-50 border rounded-xl p-2"><div className="font-extrabold text-lg">{cow.scc}k</div><div className="text-slate-500">Current SCC</div></div>
                 <div className="bg-slate-50 border rounded-xl p-2"><div className="font-extrabold text-lg">{cow.scc > 200 ? "YES" : "no"}</div><div className="text-slate-500">Above 200k subclinical line</div></div>
+                <div className="bg-slate-50 border rounded-xl p-2"><div className="font-extrabold text-lg">{worstQuarter(cow).q}</div><div className="text-slate-500">Worst quarter (EC residual {worstQuarter(cow).val.toFixed(2)})</div></div>
                 <div className="bg-slate-50 border rounded-xl p-2"><div className="font-extrabold text-lg">{p ? `${Math.min(99, pct + 4)}%` : "—"}</div><div className="text-slate-500">Subclinical probability</div></div>
               </div>
               <div className="mt-2 text-sm font-bold">Evidence:</div>
@@ -246,6 +249,8 @@ export default function CowDetail() {
             </div>
 
             <ClinicalActions riskClass={cls || "Low"} />
+
+            <HealthLog cowId={cow.id} role="doctor" />
 
             <div className="bg-white rounded-2xl border overflow-hidden">
               <div className="px-4 py-3 border-b bg-slate-50 font-bold text-sm">16 live model features (from Excel row)</div>
