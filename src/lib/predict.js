@@ -1,9 +1,20 @@
+import { Client } from "@gradio/client";
 import { MODEL_API_BASE, FEATURE_ORDER } from "../config";
 
-// Shared prediction engine: used for manual (16-field form),
-// per-cow click (row from Excel), and automatic batch (whole herd).
-// Tries live Gradio model, falls back to clearly-labelled offline estimate
-// so the SIH field demo never dead-ends when the link sleeps.
+// Shared prediction engine: uses the official @gradio/client for the live
+// model call, with a clearly-labelled offline fallback so the SIH field demo
+// never dead-ends (e.g. model asleep / CORS blocked / offline).
+// Used for manual (16-field form), per-cow click, and automatic batch.
+
+let clientPromise = null;
+function getClient() {
+  if (!clientPromise) clientPromise = Client.connect(MODEL_API_BASE);
+  return clientPromise;
+}
+
+export function resetModelClient() {
+  clientPromise = null;
+}
 
 export async function predictSingle(values) {
   const data = FEATURE_ORDER.map((k) => Number(values?.[k] ?? 0));
@@ -11,27 +22,18 @@ export async function predictSingle(values) {
     throw new Error("All 16 features must be numbers.");
   }
   try {
-    const postRes = await fetch(`${MODEL_API_BASE}/gradio_api/call/predict_mastitis`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data }),
-    });
-    if (!postRes.ok) throw new Error(`Model server responded ${postRes.status}`);
-    const { event_id } = await postRes.json();
-    if (!event_id) throw new Error("No event_id from model server.");
-    for (let i = 0; i < 20; i++) {
-      const r = await fetch(`${MODEL_API_BASE}/gradio_api/call/predict_mastitis/${event_id}`);
-      const text = await r.text();
-      const m = text.match(/data:\s*(\[.*\])/s);
-      if (m) {
-        const parsed = JSON.parse(m[1]);
-        return { ...parsed[0], live: true };
-      }
-      await new Promise((res) => setTimeout(res, 800));
+    const client = await getClient();
+    const result = await client.predict("/predict_mastitis", data);
+    // Named-endpoint result: result.data = [ { risk_level, raw_score, display_score } ]
+    const out = Array.isArray(result?.data) ? result.data[0] : result?.data;
+    if (!out || typeof out.risk_level === "undefined") {
+      throw new Error("Unexpected model response shape.");
     }
-    throw new Error("Timed out waiting for model result.");
+    return { risk_level: out.risk_level, raw_score: out.raw_score, display_score: out.display_score, live: true };
   } catch (e) {
-    // Offline fallback — same heuristic as MastitisPredictor so results match
+    // Offline fallback — same heuristic as before so results stay consistent.
+    // (CORS blocks / asleep links land here; message preserved for transparency.)
+    resetModelClient();
     const out = offlineEstimate(values);
     return { ...out, live: false, offlineError: e.message };
   }

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { MODEL_API_BASE, MODEL_URL, FEATURE_DEFS, FEATURE_ORDER } from "../config";
+import { MODEL_URL, FEATURE_DEFS, FEATURE_ORDER } from "../config";
+import { predictSingle, offlineEstimate } from "../lib/predict";
 
 const GROUPS = ["Activity", "Rumination", "Temperature", "Milk Yield", "EC · Left Front", "EC · Right Front", "EC · Left Rear", "EC · Right Rear"];
 
@@ -71,32 +72,9 @@ function adviceFor(level = "") {
   ];
 }
 
-// Direct Gradio REST call: POST /gradio_api/call/predict_mastitis then SSE polling.
-async function callGradioModel(values) {
-  const data = FEATURE_ORDER.map((k) => Number(values[k] ?? 0));
-  if (data.some((v) => !Number.isFinite(v))) throw new Error("All 16 fields must be numbers.");
-  const postRes = await fetch(`${MODEL_API_BASE}/gradio_api/call${"/predict_mastitis"}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ data }),
-  });
-  if (!postRes.ok) throw new Error(`Model server responded ${postRes.status}. It may be asleep — open it once in fullscreen.`);
-  const { event_id } = await postRes.json();
-  if (!event_id) throw new Error("No event_id from model server.");
-  // Poll SSE result (Gradio streams "event: complete\ndata: [...]")
-  for (let i = 0; i < 20; i++) {
-    const r = await fetch(`${MODEL_API_BASE}/gradio_api/call/predict_mastitis/${event_id}`);
-    const text = await r.text();
-    const m = text.match(/data:\s*(\[.*\])/s);
-    if (m) {
-      const parsed = JSON.parse(m[1]);
-      return parsed[0]; // { risk_level, raw_score, display_score }
-    }
-    await new Promise((res) => setTimeout(res, 800));
-  }
-  throw new Error("Timed out waiting for model result. Try again.");
-}
-
+// Live call goes through the shared @gradio/client engine (src/lib/predict.js).
+// predictSingle never throws for model faults — it returns a labelled offline
+// estimate instead — so `live === false` is how we know to show the notice.
 export default function MastitisPredictor({ compact = false }) {
   const [values, setValues] = useState({ ...PRESETS.zeros });
   const [loading, setLoading] = useState(false);
@@ -112,16 +90,17 @@ export default function MastitisPredictor({ compact = false }) {
     setResult(null);
     setOfflineNote(false);
     try {
-      const out = await callGradioModel(values);
+      const out = await predictSingle(values);
       setResult(out);
+      if (out.live === false) {
+        // Shared engine fell back (model asleep / CORS / offline) — say so honestly.
+        setOfflineNote(true);
+        setError(`${out.offlineError || "Live model unreachable"} — showing clearly-labelled offline estimate instead.`);
+      }
     } catch (e) {
-      // Honest offline fallback so SIH demo never dead-ends when gradio link sleeps.
-      // Clearly labelled as estimate, not model output.
-      const ecVals = ["lnVAR_EC_LF", "lnVAR_EC_RF", "lnVAR_EC_LR", "lnVAR_EC_RR"].map((k) => Number(values[k] || 0));
-      const other = ["lnVAR_activity", "lnVAR_rumination", "lnVAR_temperature", "lnVAR_milkyield"].map((k) => Number(values[k] || 0));
-      const score = Math.max(...ecVals) * 0.6 + (other.reduce((a, b) => a + b, 0) / other.length) * 0.4;
-      const level = score >= 1.2 ? "High Risk (offline estimate)" : score >= 0.4 ? "Moderate Risk (offline estimate)" : score >= -0.4 ? "Low Risk (offline estimate)" : "No Risk (offline estimate)";
-      setResult({ risk_level: level, raw_score: Number(score.toFixed(3)), display_score: Math.min(1, Math.max(0, (score + 2) / 4)) });
+      // Only input-validation faults reach here now.
+      const fb = offlineEstimate(values);
+      setResult(fb);
       setOfflineNote(true);
       setError(`${e.message} — showing clearly-labelled offline estimate instead.`);
     } finally {

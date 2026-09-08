@@ -14,7 +14,7 @@ export default function Alerts(){
   const { playing, toggle } = useAudioBriefing();
   const [filter,setFilter]=useState("All");
   // Alerts derive from live herd predictions (Excel data), fallback to demo text
-  const derived = cows.filter(c=>c.prediction && (c.prediction.class==="High"||c.prediction.class==="Moderate")).map((c,i)=>({
+  const derived = cows.filter(c=>c.prediction && (c.prediction.class==="High"||c.prediction.class==="Moderate")).map((c)=>({
     id: `live-${c.id}`, cow: `${c.id} ${c.name}`, level: c.prediction.class==="High"?"Critical":"High",
     msg: `${c.prediction.risk_level} — score ${c.prediction.raw_score} (${Math.round(c.prediction.display_score*100)}%) • Yield ${c.yieldL}L SCC ${c.scc}k`,
     time: c.prediction.at ? new Date(c.prediction.at).toLocaleString() : "just now",

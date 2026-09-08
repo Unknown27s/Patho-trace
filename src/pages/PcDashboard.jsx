@@ -3,7 +3,6 @@ import ModelFrame from "../components/ModelFrame";
 import MastitisPredictor from "../components/MastitisPredictor";
 import HerdUpload from "../components/HerdUpload";
 import SavingsStrip from "../components/SavingsStrip";
-import Logo from "../components/Logo";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
@@ -18,44 +17,8 @@ export default function PcDashboard() {
   const { cows, source, predictAll } = useHerd();
   const nav = useNavigate();
   return (
-    <div className="flex min-h-screen bg-[#f1f5f9]">
-      {/* SIDEBAR */}
-      <aside className="hidden lg:flex w-[272px] bg-[#0f281e] text-white flex-col fixed h-screen z-30">
-        <div className="p-5 flex items-center gap-3 border-b border-white/10">
-          <Logo dark />
-        </div>
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto scrollbar-none">
-          <Link to="/doctor" className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm"><span className="material-symbols-outlined text-[20px]">dashboard</span> {t("navHome")}</Link>
-          <Link to="/doctor/herd" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">pets</span> {t("navHerd")} <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">{cows.length}</span></Link>
-          <Link to="/doctor/alerts" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">ecg_heart</span> {t("navAlerts")} <span className="ml-auto bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">4</span></Link>
-          <Link to="/doctor/predict" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">biotech</span> {t("aiTitle")}</Link>
-          <Link to="/doctor/coop" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">corporate_fare</span> Co-op Board <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">new</span></Link>
-          <Link to="/doctor/sop" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">assignment_turned_in</span> {t("navSop")}</Link>
-          <Link to="/doctor" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">map</span> {t("navGis")}</Link>
-          <Link to="/doctor/vet" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">support_agent</span> {t("navVet")}</Link>
-          <div className="pt-4 mt-4 border-t border-white/10">
-            <div className="px-3 text-[11px] font-bold tracking-widest text-white/40 uppercase">Risk Categories</div>
-            <div className="mt-2 space-y-1.5 px-3 text-xs">
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-400"></span> {t("riskNo")}</div>
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-lime-400"></span> {t("riskLow")}</div>
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-amber-400"></span> {t("riskMod")}</div>
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500"></span> {t("riskHigh")}</div>
-            </div>
-          </div>
-        </nav>
-        <div className="p-4 border-t border-white/10">
-          <div className="bg-white/10 rounded-xl p-3 flex items-center gap-3">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW9n0hAqfPV1coAuljo_rhZnXXrpesYJFTRF-gIxTAi3I4eytSj3GBrlGYTcw3k-LXezy9afA05QxP0eaEP1PJOly2VdfErnMKuCst2wBtZiObCkyfjHWZ2clmE3pCjiRonUGHWk_OKozudyDPhI2uALs5CHou-whR2Vsj210qi7iwXXdr1ZODRGbcOPbKKJSuWTqW_DjRSF8GlGgVlKOeT-wdkYOdfGf_K1dDPP0gPqnxkaSBgOxlig" className="w-10 h-10 rounded-full object-cover" alt="vet"/>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-bold leading-none">Dr. S. Radhakrishnan</div>
-              <div className="text-xs text-emerald-300">BVSc • On Duty • 8 min away</div>
-            </div>
-            <Link to="/vet" className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center"><span className="material-symbols-outlined text-[18px]">call</span></Link>
-          </div>
-        </div>
-      </aside>
-
-      <div className="flex-1 lg:ml-[272px]">
+    <>
+      <div>
         <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-6 py-3 flex items-center justify-between gap-4">
           <div>
             <h1 className="font-jakarta font-extrabold text-xl leading-none">{t("herdTitle")} <span className="text-emerald-700">{t("anandUnit")}</span></h1>
@@ -226,6 +189,6 @@ export default function PcDashboard() {
           <div className="text-center text-xs text-slate-400 py-4">PathoTracer • SIH 2025 • <Link to="/" className="underline text-emerald-700">Home</Link> • Model: <a href={MODEL_URL} target="_blank" rel="noreferrer" className="underline text-emerald-700">{MODEL_URL.replace('https://','')}</a></div>
         </main>
       </div>
-    </div>
+    </>
   );
 }

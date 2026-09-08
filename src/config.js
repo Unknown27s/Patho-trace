@@ -1,4 +1,4 @@
-export const MODEL_URL = "https://f85c961f58a048488a.gradio.live/";
+export const MODEL_URL = "https://4e0e9b043f25e0911b.gradio.live";
 export const MODEL_API_BASE = MODEL_URL.replace(/\/$/, "");
 export const MODEL_ENDPOINT = "/predict_mastitis";
 

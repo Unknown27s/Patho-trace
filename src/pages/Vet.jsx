@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import Toast from "../components/Toast";
 
 export default function Vet(){
-  const { t } = useLanguage();
   const { user } = useAuth();
   const base = user?.role === "doctor" ? "/doctor" : "/farmer";
   const [toast,setToast]=useState("");

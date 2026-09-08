@@ -3,6 +3,8 @@ import { LanguageProvider } from "./context/LanguageContext";
 import { AuthProvider } from "./context/AuthContext";
 import { HerdProvider } from "./context/HerdContext";
 import { RequireAuth, DashboardRedirect } from "./components/RequireAuth";
+import FarmerLayout from "./components/FarmerLayout";
+import DoctorLayout from "./components/DoctorLayout";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import PcDashboard from "./pages/PcDashboard";
@@ -15,10 +17,10 @@ import Predict from "./pages/Predict";
 import CowDetail from "./pages/CowDetail";
 import CoopBoard from "./pages/CoopBoard";
 
-// TWO SEPARATE PORTALS — strict role split:
+// TWO SEPARATE PORTALS — strict role split, persistent nav shells:
 //
-//   Farmer  → ONLY /farmer/*   (simple shed view, plain language, tap-cow predict)
-//   Doctor  → ONLY /doctor/*   (full command center, 16-feature table, GIS, batch predict)
+//   Farmer  → ONLY /farmer/*  (FarmerLayout: fixed bottom nav on every page)
+//   Doctor  → ONLY /doctor/*  (DoctorLayout: fixed sidebar on desktop + bottom nav on mobile)
 //
 // e.g.  localhost:5173/farmer/herd   vs   localhost:5173/doctor/herd
 // A farmer hitting /doctor/* is bounced to /farmer, and vice versa.
@@ -34,23 +36,27 @@ export default function App() {
               <Route path="/login" element={<Login />} />
 
               {/* FARMER PORTAL */}
-              <Route path="/farmer" element={<RequireAuth roles={["farmer"]}><MobileDashboard /></RequireAuth>} />
-              <Route path="/farmer/herd" element={<RequireAuth roles={["farmer"]}><MyHerd /></RequireAuth>} />
-              <Route path="/farmer/cow/:id" element={<RequireAuth roles={["farmer"]}><CowDetail /></RequireAuth>} />
-              <Route path="/farmer/predict" element={<RequireAuth roles={["farmer"]}><Predict /></RequireAuth>} />
-              <Route path="/farmer/alerts" element={<RequireAuth roles={["farmer"]}><Alerts /></RequireAuth>} />
-              <Route path="/farmer/sop" element={<RequireAuth roles={["farmer"]}><Sop /></RequireAuth>} />
-              <Route path="/farmer/vet" element={<RequireAuth roles={["farmer"]}><Vet /></RequireAuth>} />
+              <Route path="/farmer" element={<RequireAuth roles={["farmer"]}><FarmerLayout /></RequireAuth>}>
+                <Route index element={<MobileDashboard />} />
+                <Route path="herd" element={<MyHerd />} />
+                <Route path="cow/:id" element={<CowDetail />} />
+                <Route path="predict" element={<Predict />} />
+                <Route path="alerts" element={<Alerts />} />
+                <Route path="sop" element={<Sop />} />
+                <Route path="vet" element={<Vet />} />
+              </Route>
 
               {/* DOCTOR PORTAL */}
-              <Route path="/doctor" element={<RequireAuth roles={["doctor"]}><PcDashboard /></RequireAuth>} />
-              <Route path="/doctor/herd" element={<RequireAuth roles={["doctor"]}><MyHerd /></RequireAuth>} />
-              <Route path="/doctor/cow/:id" element={<RequireAuth roles={["doctor"]}><CowDetail /></RequireAuth>} />
-              <Route path="/doctor/predict" element={<RequireAuth roles={["doctor"]}><Predict /></RequireAuth>} />
-              <Route path="/doctor/coop" element={<RequireAuth roles={["doctor"]}><CoopBoard /></RequireAuth>} />
-              <Route path="/doctor/alerts" element={<RequireAuth roles={["doctor"]}><Alerts /></RequireAuth>} />
-              <Route path="/doctor/sop" element={<RequireAuth roles={["doctor"]}><Sop /></RequireAuth>} />
-              <Route path="/doctor/vet" element={<RequireAuth roles={["doctor"]}><Vet /></RequireAuth>} />
+              <Route path="/doctor" element={<RequireAuth roles={["doctor"]}><DoctorLayout /></RequireAuth>}>
+                <Route index element={<PcDashboard />} />
+                <Route path="herd" element={<MyHerd />} />
+                <Route path="cow/:id" element={<CowDetail />} />
+                <Route path="predict" element={<Predict />} />
+                <Route path="coop" element={<CoopBoard />} />
+                <Route path="alerts" element={<Alerts />} />
+                <Route path="sop" element={<Sop />} />
+                <Route path="vet" element={<Vet />} />
+              </Route>
 
               <Route path="/dashboard" element={<DashboardRedirect />} />
 

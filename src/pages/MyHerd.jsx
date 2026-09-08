@@ -37,14 +37,10 @@ export default function MyHerd() {
 
   return (
     <div className="min-h-screen bg-[#f1f5f9]">
-      <header className="sticky top-0 z-20 bg-white border-b px-4 lg:px-6 py-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Link to={base} className="w-9 h-9 rounded-xl bg-slate-100 border flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></Link>
-          <div>
-            <h1 className="font-jakarta font-extrabold">{t("navHerd")} — {cows.length} Animals {role === "doctor" ? "(Doctor)" : "(Farmer)"}</h1>
-            <p className="text-xs text-slate-500">Source: {source} • {t("herdSub")}</p>
-          </div>
-        </div>
+      <header className="sticky top-0 z-20 bg-white border-b px-4 lg:px-6 py-3 flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-3 min-w-0">
+          <Link to={base} className="w-9 h-9 rounded-xl bg-slate-100 border flex items-center justify-center flex-shrink-0"><span className="material-symbols-outlined">arrow_back</span></Link>
+          <div className="min-w-0"><h1 className="font-jakarta font-extrabold truncate">{t("navHerd")} — {cows.length} Animals {role === "doctor" ? "(Doctor)" : "(Farmer)"}</h1><p className="text-xs text-slate-500 truncate">Source: {source} • {t("herdSub")}</p></div></div>
         <div className="flex items-center gap-2">
           <LanguageSwitcher compact />
           <button onClick={toggle} className={`h-9 px-3 rounded-full text-xs font-bold flex items-center gap-1 ${playing ? "bg-red-600 text-white" : "bg-emerald-700 text-white"}`}><span className="material-symbols-outlined text-[16px]">{playing ? "pause" : "volume_up"}</span> {playing ? t("briefingPlaying") : t("audioBriefingShort")}</button>
