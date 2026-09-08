@@ -15,7 +15,7 @@ export function useAudioBriefing(){
     const text = t("briefingText");
     const utter = new SpeechSynthesisUtterance(text);
     // map lang to voice lang code
-    const map = { en: "en-IN", hi: "hi-IN", gu: "gu-IN" };
+    const map = { en: "en-IN", hi: "hi-IN", gu: "gu-IN", ta: "ta-IN", te: "te-IN", kn: "kn-IN", mr: "mr-IN" };
     utter.lang = map[lang] || "en-IN";
     utter.rate = 0.95;
     utter.onend = () => setPlaying(false);

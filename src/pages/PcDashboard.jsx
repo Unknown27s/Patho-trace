@@ -1,10 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import ModelFrame from "../components/ModelFrame";
 import MastitisPredictor from "../components/MastitisPredictor";
+import HerdUpload from "../components/HerdUpload";
+import SavingsStrip from "../components/SavingsStrip";
 import Logo from "../components/Logo";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
+import { useHerd } from "../context/HerdContext";
 import { useAudioBriefing } from "../hooks/useAudioBriefing";
 import { MODEL_URL } from "../config";
 
@@ -12,6 +15,7 @@ export default function PcDashboard() {
   const { t } = useLanguage();
   const { playing, toggle } = useAudioBriefing();
   const { user, logout } = useAuth();
+  const { cows, source, predictAll } = useHerd();
   const nav = useNavigate();
   return (
     <div className="flex min-h-screen bg-[#f1f5f9]">
@@ -22,12 +26,13 @@ export default function PcDashboard() {
         </div>
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto scrollbar-none">
           <Link to="/doctor" className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm"><span className="material-symbols-outlined text-[20px]">dashboard</span> {t("navHome")}</Link>
-          <Link to="/herd" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">pets</span> {t("navHerd")} <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">48</span></Link>
-          <Link to="/alerts" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">ecg_heart</span> {t("navAlerts")} <span className="ml-auto bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">4</span></Link>
-          <Link to="/doctor" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">biotech</span> {t("aiTitle")}</Link>
-          <Link to="/sop" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">assignment_turned_in</span> {t("navSop")}</Link>
+          <Link to="/doctor/herd" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">pets</span> {t("navHerd")} <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">{cows.length}</span></Link>
+          <Link to="/doctor/alerts" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">ecg_heart</span> {t("navAlerts")} <span className="ml-auto bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">4</span></Link>
+          <Link to="/doctor/predict" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">biotech</span> {t("aiTitle")}</Link>
+          <Link to="/doctor/coop" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">corporate_fare</span> Co-op Board <span className="ml-auto bg-white/20 px-2 py-0.5 rounded-full text-xs">new</span></Link>
+          <Link to="/doctor/sop" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">assignment_turned_in</span> {t("navSop")}</Link>
           <Link to="/doctor" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">map</span> {t("navGis")}</Link>
-          <Link to="/vet" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">support_agent</span> {t("navVet")}</Link>
+          <Link to="/doctor/vet" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/10 text-white/80 text-sm"><span className="material-symbols-outlined">support_agent</span> {t("navVet")}</Link>
           <div className="pt-4 mt-4 border-t border-white/10">
             <div className="px-3 text-[11px] font-bold tracking-widest text-white/40 uppercase">Risk Categories</div>
             <div className="mt-2 space-y-1.5 px-3 text-xs">
@@ -61,7 +66,7 @@ export default function PcDashboard() {
             <span className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold"><span className="material-symbols-outlined text-[16px]">device_thermostat</span> {t("thi")}</span>
             <LanguageSwitcher/>
             <button onClick={toggle} className={`h-9 px-4 rounded-full text-xs font-bold flex items-center gap-1.5 ${playing ? "bg-red-600 text-white animate-pulse":"bg-emerald-700 text-white"}`}><span className="material-symbols-outlined text-[16px]">{playing ? "pause":"volume_up"}</span> {playing ? t("briefingPlaying") : t("audioBriefing")}</button>
-            <Link to="/alerts" className="w-9 h-9 rounded-full bg-slate-100 border flex items-center justify-center relative"><span className="material-symbols-outlined">notifications</span><span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] px-1 rounded-full font-bold">4</span></Link>
+            <Link to="/doctor/alerts" className="w-9 h-9 rounded-full bg-slate-100 border flex items-center justify-center relative"><span className="material-symbols-outlined">notifications</span><span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] px-1 rounded-full font-bold">4</span></Link>
             <button onClick={()=>{logout(); nav("/login");}} title="Sign out" className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center"><span className="material-symbols-outlined text-[18px]">logout</span></button>
           </div>
         </header>
@@ -78,10 +83,37 @@ export default function PcDashboard() {
               <a href="#priority" className="relative bg-white text-red-700 px-5 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-md whitespace-nowrap">{t("triage")} <span className="material-symbols-outlined">arrow_forward</span></a>
             </div>
             <div className="col-span-12 xl:col-span-4 grid grid-cols-2 gap-3">
-              <div className="bg-white rounded-2xl p-4 border shadow-sm"><div className="text-xs font-bold text-slate-500">{t("totalHerd")}</div><div className="font-jakarta font-extrabold text-3xl">48</div><div className="text-xs text-slate-500">{t("totalSub")}</div></div>
+              <div className="bg-white rounded-2xl p-4 border shadow-sm"><div className="text-xs font-bold text-slate-500">{t("totalHerd")}</div><div className="font-jakarta font-extrabold text-3xl">{cows.length}</div><div className="text-xs text-slate-500">{source}</div></div>
               <div className="bg-white rounded-2xl p-4 border shadow-sm border-emerald-100"><div className="text-xs font-bold text-emerald-700">{t("healthy")}</div><div className="font-jakarta font-extrabold text-3xl text-emerald-700">35</div><div className="inline-flex mt-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">{t("safe")}</div></div>
               <div className="bg-white rounded-2xl p-4 border shadow-sm border-sky-100"><div className="text-xs font-bold text-sky-700">{t("watchlist")}</div><div className="font-jakarta font-extrabold text-3xl text-sky-700">09</div><div className="inline-flex mt-1 px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-bold">{t("mild")}</div></div>
               <div className="bg-white rounded-2xl p-4 border shadow-sm border-rose-100"><div className="text-xs font-bold text-rose-700">{t("highRisk")}</div><div className="font-jakarta font-extrabold text-3xl text-rose-600">04</div><div className="inline-flex mt-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">{t("critical")}</div></div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-12 gap-5">
+            <div className="col-span-12 bg-white rounded-2xl border shadow-sm p-3">
+              <HerdUpload autoPredict />
+              <div className="mt-2 flex items-center justify-between flex-wrap gap-2">
+                <p className="text-xs text-slate-500">Excel rows → live herd below. Click any cow for per-cow prediction, or run automatic batch:</p>
+                <div className="flex gap-2">
+                  <button onClick={() => predictAll()} className="px-3 py-2 rounded-full bg-slate-900 text-white text-xs font-bold">🤖 Auto-predict all {cows.length} cows</button>
+                  <Link to="/doctor/herd" className="px-3 py-2 rounded-full bg-emerald-700 text-white text-xs font-bold">Open herd table →</Link>
+                </div>
+              </div>
+              <div className="mt-2 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                {cows.map((c) => (
+                  <Link key={c.id} to={`/doctor/cow/${c.id}`} className="border rounded-xl p-2 text-xs bg-slate-50 hover:border-emerald-400">
+                    <div className="font-bold">{c.id} '{c.name}' <span className="font-normal text-slate-500">• {c.yieldL}L • {c.scc}k</span></div>
+                    <div className="font-bold text-emerald-800">{c.predicting ? "⏳ predicting…" : c.prediction ? `${c.prediction.class} ${Math.round(c.prediction.display_score * 100)}% ${c.prediction.live ? "🟢" : "🟡"}` : "— no prediction yet, click →"}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-12 gap-5">
+            <div className="col-span-12">
+              <SavingsStrip base="/doctor" />
             </div>
           </div>
 
@@ -160,7 +192,7 @@ export default function PcDashboard() {
           <div id="priority" className="bg-white rounded-2xl border shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b flex items-center justify-between">
               <div><h3 className="font-jakarta font-bold">{t("animalTableTitle")}</h3><p className="text-xs text-slate-500">{t("animalTableSub")}</p></div>
-              <div className="flex gap-2"><button className="px-3 py-1.5 rounded-full border bg-slate-50 text-xs font-bold">Export CSV</button><Link to="/vet" className="px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-bold">WhatsApp SOP to Vet</Link></div>
+              <div className="flex gap-2"><button className="px-3 py-1.5 rounded-full border bg-slate-50 text-xs font-bold">Export CSV</button><Link to="/doctor/vet" className="px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-bold">WhatsApp SOP to Vet</Link></div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
@@ -191,7 +223,7 @@ export default function PcDashboard() {
             </div>
           </div>
 
-          <div className="text-center text-xs text-slate-400 py-4">KsheeraAI • SIH 2025 • <Link to="/" className="underline text-emerald-700">Home</Link> • Model: <a href={MODEL_URL} target="_blank" rel="noreferrer" className="underline text-emerald-700">{MODEL_URL.replace('https://','')}</a></div>
+          <div className="text-center text-xs text-slate-400 py-4">PathoTracer • SIH 2025 • <Link to="/" className="underline text-emerald-700">Home</Link> • Model: <a href={MODEL_URL} target="_blank" rel="noreferrer" className="underline text-emerald-700">{MODEL_URL.replace('https://','')}</a></div>
         </main>
       </div>
     </div>

@@ -6,7 +6,7 @@ export default function Logo({ size = 40, dark = false, showText = true }) {
       <div
         className="rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-emerald-200 bg-white"
         style={{ width: size, height: size, padding: 5 }}
-        aria-label="KsheeraAI logo"
+        aria-label="PathoTracer logo"
       >
         {/* Inline SVG: milk drop + udder quarters (LF/RF/LR/RR) — no external URL, works offline */}
         <svg viewBox="0 0 48 48" className="w-full h-full" role="img" aria-hidden="true">
@@ -21,7 +21,7 @@ export default function Logo({ size = 40, dark = false, showText = true }) {
       {showText && (
         <div className="min-w-0 leading-none">
           <div className={`font-jakarta font-extrabold truncate ${dark ? "text-white" : "text-emerald-800"}`} style={{ fontSize: size >= 40 ? 16 : 14 }}>
-            KsheeraAI
+            PathoTracer
           </div>
           <div className={`text-[10px] font-bold tracking-widest ${dark ? "text-emerald-300" : "text-emerald-600"}`}>
             DAIRY AI • SIH

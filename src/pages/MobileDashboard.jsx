@@ -1,9 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import ModelFrame from "../components/ModelFrame";
 import MastitisPredictor from "../components/MastitisPredictor";
+import HerdUpload from "../components/HerdUpload";
+import SavingsStrip from "../components/SavingsStrip";
 import Logo from "../components/Logo";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
+import { useHerd } from "../context/HerdContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAudioBriefing } from "../hooks/useAudioBriefing";
 
@@ -11,7 +14,10 @@ export default function MobileDashboard() {
   const { t } = useLanguage();
   const { playing, toggle } = useAudioBriefing();
   const { user, logout } = useAuth();
+  const { cows, source } = useHerd();
   const nav = useNavigate();
+  const high = cows.filter((c) => c.prediction?.class === "High").length;
+  const healthy = cows.filter((c) => c.prediction?.class === "No Risk").length;
   return (
     <div className="bg-[#f8f9ff] min-h-screen flex flex-col">
       <header className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur border-b border-slate-200">
@@ -24,7 +30,7 @@ export default function MobileDashboard() {
             <LanguageSwitcher compact/>
             <button onClick={toggle} className={`w-9 h-9 rounded-full flex items-center justify-center ${playing?"bg-red-600 text-white":"bg-emerald-700 text-white"}`}><span className="material-symbols-outlined text-[18px]">{playing ? 'pause' : 'volume_up'}</span></button>
             <button onClick={()=>{logout(); nav("/login");}} title="Sign out" className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center"><span className="material-symbols-outlined text-[18px]">logout</span></button>
-            <Link to="/alerts" className="w-9 h-9 rounded-full bg-slate-100 border flex items-center justify-center relative"><span className="material-symbols-outlined text-[20px]">notifications</span><span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-600 rounded-full ring-2 ring-white"></span></Link>
+            <Link to="/farmer/alerts" className="w-9 h-9 rounded-full bg-slate-100 border flex items-center justify-center relative"><span className="material-symbols-outlined text-[20px]">notifications</span><span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-600 rounded-full ring-2 ring-white"></span></Link>
           </div>
         </div>
       </header>
@@ -61,6 +67,26 @@ export default function MobileDashboard() {
 
         <section className="bg-white rounded-2xl border-2 border-emerald-300 shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b bg-emerald-50 flex items-center justify-between">
+            <div>
+              <h3 className="font-jakarta font-bold text-sm leading-none">🌾 My Cows — from Excel ({cows.length} • {source})</h3>
+              <p className="text-[11px] text-slate-600">Tap any cow → auto prediction in simple words • {high} high-risk</p>
+            </div>
+            <Link to="/farmer/herd" className="px-2 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-bold">Open →</Link>
+          </div>
+          <div className="p-2 grid grid-cols-2 gap-2">
+            {cows.slice(0, 4).map((c) => (
+              <Link key={c.id} to={`/farmer/cow/${c.id}`} className="bg-slate-50 border rounded-xl p-2 text-xs">
+                <div className="font-bold">{c.id} '{c.name}'</div>
+                <div className="text-slate-500">{c.yieldL}L • {c.scc}k SCC</div>
+                <div className="mt-1 font-bold text-emerald-800">{c.prediction ? `${c.prediction.class} ${Math.round(c.prediction.display_score * 100)}%` : "Tap → Predict"}</div>
+              </Link>
+            ))}
+          </div>
+          <div className="p-2"><HerdUpload compact /></div>
+        </section>
+
+        <section className="bg-white rounded-2xl border-2 border-emerald-300 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b bg-emerald-50 flex items-center justify-between">
             <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center"><span className="material-symbols-outlined text-[18px]">smart_toy</span></div><div><h3 className="font-jakarta font-bold text-sm leading-none">{t("aiShort")}</h3><p className="text-[11px] text-slate-600">{t("aiSub")}</p></div></div>
             <span className="px-2 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-bold">{t("modelLive")}</span>
           </div>
@@ -82,16 +108,18 @@ export default function MobileDashboard() {
         <section className="space-y-2">
           <div className="flex justify-between items-center px-1"><h3 className="font-jakarta font-bold text-sm flex items-center gap-1.5"><span className="material-symbols-outlined text-emerald-700">grid_view</span> {t("herdVitals")}</h3><span className="text-xs text-slate-500">Anand Unit #14</span></div>
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="bg-white rounded-xl p-3 border shadow-sm"><div className="text-xs font-semibold text-slate-500">{t("totalHerd")}</div><div className="font-jakarta font-extrabold text-2xl">48</div><div className="text-xs text-slate-500">{t("totalSub")}</div></div>
-            <div className="bg-white rounded-xl p-3 border border-emerald-100"><div className="text-xs font-semibold text-emerald-700">{t("healthy")}</div><div className="font-jakarta font-extrabold text-2xl text-emerald-700">35</div><span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">{t("safe")}</span></div>
+            <div className="bg-white rounded-xl p-3 border shadow-sm"><div className="text-xs font-semibold text-slate-500">{t("totalHerd")}</div><div className="font-jakarta font-extrabold text-2xl">{cows.length}</div><div className="text-xs text-slate-500">{source}</div></div>
+            <div className="bg-white rounded-xl p-3 border border-emerald-100"><div className="text-xs font-semibold text-emerald-700">{t("healthy")}</div><div className="font-jakarta font-extrabold text-2xl text-emerald-700">{healthy || "—"}</div><span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">{t("safe")}</span></div>
             <div className="bg-white rounded-xl p-3 border border-sky-100"><div className="text-xs font-semibold text-sky-700">{t("watchlist")}</div><div className="font-jakarta font-extrabold text-2xl text-sky-700">09</div><span className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-bold">{t("mild")}</span></div>
             <div className="bg-white rounded-xl p-3 border border-rose-100"><div className="text-xs font-semibold text-rose-700">{t("highRisk")}</div><div className="font-jakarta font-extrabold text-2xl text-rose-600">04</div><span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">{t("critical")}</span></div>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="bg-white rounded-xl p-3 border"><div className="text-xs text-slate-500 font-semibold flex justify-between">{t("todaysMilk")} <span className="material-symbols-outlined text-sky-600 text-[16px]">water_drop</span></div><div className="font-jakarta font-extrabold text-xl">286 <span className="text-xs font-normal">L/day</span></div><div className="text-xs text-red-600 font-bold">-4.2% dip</div></div>
+            <div className="bg-white rounded-xl p-3 border"><div className="text-xs text-slate-500 font-semibold flex justify-between">{t("todaysMilk")} <span className="material-symbols-outlined text-sky-600 text-[16px]">water_drop</span></div><div className="font-jakarta font-extrabold text-xl">{cows.reduce((a, c) => a + (Number(c.yieldL) || 0), 0).toFixed(0)} <span className="text-xs font-normal">L/day</span></div><div className="text-xs text-red-600 font-bold">live from Excel</div></div>
             <div className="bg-white rounded-xl p-3 border"><div className="text-xs text-slate-500 font-semibold flex justify-between">{t("bulkScc")} <span className="material-symbols-outlined text-amber-600 text-[16px]">biotech</span></div><div className="font-jakarta font-extrabold text-xl">245k</div><div className="text-xs text-amber-700 font-bold">{t("gradeB")}</div></div>
           </div>
         </section>
+
+        <SavingsStrip base="/farmer" />
 
         <section className="bg-gradient-to-br from-emerald-900 to-teal-950 rounded-2xl p-4 text-white space-y-3 shadow">
           <div className="flex justify-between items-center"><div className="flex items-center gap-2"><div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center"><span className="material-symbols-outlined text-emerald-300">timeline</span></div><div><h3 className="font-jakarta font-bold text-sm">{t("windowTitle")}</h3><span className="text-xs text-emerald-200">{t("saves")}</span></div></div></div>
@@ -144,17 +172,17 @@ export default function MobileDashboard() {
             <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW9n0hAqfPV1coAuljo_rhZnXXrpesYJFTRF-gIxTAi3I4eytSj3GBrlGYTcw3k-LXezy9afA05QxP0eaEP1PJOly2VdfErnMKuCst2wBtZiObCkyfjHWZ2clmE3pCjiRonUGHWk_OKozudyDPhI2uALs5CHou-whR2Vsj210qi7iwXXdr1ZODRGbcOPbKKJSuWTqW_DjRSF8GlGgVlKOeT-wdkYOdfGf_K1dDPP0gPqnxkaSBgOxlig" className="w-14 h-14 rounded-full object-cover ring-2 ring-emerald-200" alt="vet"/>
             <div className="flex-1 min-w-0"><div className="font-bold text-sm">Dr. S. Radhakrishnan, BVSc</div><div className="text-xs text-slate-500">Anand Milk Union • Sector 3 • 8 mins</div></div>
           </div>
-          <div className="grid grid-cols-2 gap-2"><Link to="/vet" className="h-11 bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-1 text-xs"><span className="material-symbols-outlined">call</span> {t("navVet")}</Link><Link to="/vet" className="h-11 bg-slate-100 border rounded-xl font-semibold flex items-center justify-center gap-1 text-xs"><span className="material-symbols-outlined text-emerald-700">share</span> WhatsApp SOP</Link></div>
+           <div className="grid grid-cols-2 gap-2"><Link to="/farmer/vet" className="h-11 bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-1 text-xs"><span className="material-symbols-outlined">call</span> {t("navVet")}</Link><Link to="/farmer/vet" className="h-11 bg-slate-100 border rounded-xl font-semibold flex items-center justify-center gap-1 text-xs"><span className="material-symbols-outlined text-emerald-700">share</span> WhatsApp SOP</Link></div>
         </section>
       </main>
 
       <nav className="fixed bottom-0 w-full z-50 bg-white/95 backdrop-blur border-t">
         <div className="flex justify-around items-center h-16 max-w-md mx-auto">
           <Link to="/farmer" className="flex flex-col items-center text-emerald-700 font-bold"><span className="material-symbols-outlined">roofing</span><span className="text-[11px]">Home</span></Link>
-          <Link to="/herd" className="flex flex-col items-center text-slate-500"><span className="material-symbols-outlined">pets</span><span className="text-[11px]">{t("navHerd")}</span></Link>
-          <Link to="/alerts" className="flex flex-col items-center text-slate-500 relative"><span className="material-symbols-outlined">ecg_heart</span><span className="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] px-1 rounded-full">4</span><span className="text-[11px]">{t("navAlerts")}</span></Link>
-          <Link to="/sop" className="flex flex-col items-center text-slate-500"><span className="material-symbols-outlined">assignment_turned_in</span><span className="text-[11px]">SOP</span></Link>
-          <Link to="/vet" className="flex flex-col items-center text-slate-500"><span className="material-symbols-outlined">support_agent</span><span className="text-[11px]">Vet</span></Link>
+          <Link to="/farmer/herd" className="flex flex-col items-center text-slate-500"><span className="material-symbols-outlined">pets</span><span className="text-[11px]">{t("navHerd")}</span></Link>
+          <Link to="/farmer/alerts" className="flex flex-col items-center text-slate-500 relative"><span className="material-symbols-outlined">ecg_heart</span><span className="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] px-1 rounded-full">4</span><span className="text-[11px]">{t("navAlerts")}</span></Link>
+          <Link to="/farmer/sop" className="flex flex-col items-center text-slate-500"><span className="material-symbols-outlined">assignment_turned_in</span><span className="text-[11px]">SOP</span></Link>
+          <Link to="/farmer/vet" className="flex flex-col items-center text-slate-500"><span className="material-symbols-outlined">support_agent</span><span className="text-[11px]">Vet</span></Link>
         </div>
       </nav>
     </div>

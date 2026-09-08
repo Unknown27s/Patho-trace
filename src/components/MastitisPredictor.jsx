@@ -216,7 +216,7 @@ export default function MastitisPredictor({ compact = false }) {
             </ul>
             <div className="mt-2 flex gap-2 flex-wrap">
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`KsheeraAI mastitis report: ${result.risk_level}, score ${result.raw_score} (${pct}%). Features: ${FEATURE_ORDER.map((k) => `${k}=${values[k]}`).join(", ")}`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(`PathoTracer mastitis report: ${result.risk_level}, score ${result.raw_score} (${pct}%). Features: ${FEATURE_ORDER.map((k) => `${k}=${values[k]}`).join(", ")}`)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="px-3 py-2 rounded-full bg-emerald-700 text-white text-xs font-bold"

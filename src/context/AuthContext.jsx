@@ -14,15 +14,15 @@ const DEMO_USERS = {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
-      const raw = localStorage.getItem("ksheera_user");
+      const raw = localStorage.getItem("pathotracer_user");
       return raw ? JSON.parse(raw) : null;
     } catch { return null; }
   });
 
   useEffect(() => {
     try {
-      if (user) localStorage.setItem("ksheera_user", JSON.stringify(user));
-      else localStorage.removeItem("ksheera_user");
+      if (user) localStorage.setItem("pathotracer_user", JSON.stringify(user));
+      else localStorage.removeItem("pathotracer_user");
     } catch { /* ignore */ }
   }, [user]);
 

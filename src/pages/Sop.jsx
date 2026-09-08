@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAudioBriefing } from "../hooks/useAudioBriefing";
 
@@ -12,6 +13,8 @@ const steps=[
 
 export default function Sop(){
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const base = user?.role === "doctor" ? "/doctor" : "/farmer";
   const { playing, toggle } = useAudioBriefing();
   const [checked,setChecked]=useState({});
   const doneCount=steps.filter(s=>checked[s.num]).length;
@@ -19,7 +22,7 @@ export default function Sop(){
   return (
     <div className="min-h-screen bg-[#f1f5f9]">
       <header className="sticky top-0 bg-white border-b px-4 lg:px-6 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-3"><Link to="/dashboard" className="w-9 h-9 rounded-xl bg-slate-100 border flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></Link><div><h1 className="font-jakarta font-extrabold">Action SOP Checklist</h1><p className="text-xs text-slate-500">{doneCount}/{steps.length} completed</p></div></div>
+        <div className="flex items-center gap-3"><Link to={base} className="w-9 h-9 rounded-xl bg-slate-100 border flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></Link><div><h1 className="font-jakarta font-extrabold">Action SOP Checklist {user?.role === "doctor" ? "(Doctor protocol)" : "(Simple steps)"}</h1><p className="text-xs text-slate-500">{doneCount}/{steps.length} completed</p></div></div>
         <div className="flex items-center gap-2"><LanguageSwitcher compact/><button onClick={toggle} className={`h-9 px-3 rounded-full text-xs font-bold flex items-center gap-1 ${playing?"bg-red-600 text-white":"bg-emerald-700 text-white"}`}><span className="material-symbols-outlined text-[16px]">{playing?"pause":"volume_up"}</span> {t("audioBriefingShort")}</button></div>
       </header>
       <main className="max-w-3xl mx-auto p-4 space-y-4">

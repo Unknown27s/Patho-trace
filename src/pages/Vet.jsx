@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import Toast from "../components/Toast";
 
 export default function Vet(){
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const base = user?.role === "doctor" ? "/doctor" : "/farmer";
   const [toast,setToast]=useState("");
   return (
     <div className="min-h-screen bg-[#f1f5f9]">
       <header className="sticky top-0 bg-white border-b px-4 lg:px-6 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-3"><Link to="/dashboard" className="w-9 h-9 rounded-xl bg-slate-100 border flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></Link><div><h1 className="font-jakarta font-extrabold">Call Veterinarian</h1><p className="text-xs text-slate-500">Field Vet • On Duty</p></div></div>
+        <div className="flex items-center gap-3"><Link to={base} className="w-9 h-9 rounded-xl bg-slate-100 border flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></Link><div><h1 className="font-jakarta font-extrabold">Call Veterinarian {user?.role === "doctor" ? "(Doctor console)" : ""}</h1><p className="text-xs text-slate-500">Field Vet • On Duty</p></div></div>
         <LanguageSwitcher compact/>
       </header>
       <main className="max-w-3xl mx-auto p-4 space-y-4">

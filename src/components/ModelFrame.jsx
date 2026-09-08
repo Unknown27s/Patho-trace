@@ -4,7 +4,7 @@ export default function ModelFrame({ height = 520 }) {
   return (
     <div className="space-y-2">
       <div className="rounded-xl overflow-hidden border-2 border-emerald-200 bg-white shadow-inner" style={{ height }}>
-        <iframe src={MODEL_URL} title="KsheeraAI Mastitis ML Model" className="w-full h-full border-0" allow="camera; microphone; clipboard-read; clipboard-write" />
+        <iframe src={MODEL_URL} title="PathoTracer Mastitis ML Model" className="w-full h-full border-0" allow="camera; microphone; clipboard-read; clipboard-write" />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs px-1">
         <span className="text-slate-500">
