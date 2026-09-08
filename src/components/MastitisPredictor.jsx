@@ -72,9 +72,9 @@ function adviceFor(level = "") {
   ];
 }
 
-// Live call goes through the shared @gradio/client engine (src/lib/predict.js).
-// predictSingle never throws for model faults — it returns a labelled offline
-// estimate instead — so `live === false` is how we know to show the notice.
+// Live call goes through the shared on-device engine (src/lib/predict.js →
+// localModel.js, real PLS weights). predictSingle returns a labelled offline
+// estimate only if local weights ever fail — `live === false` shows the notice.
 export default function MastitisPredictor({ compact = false }) {
   const [values, setValues] = useState({ ...PRESETS.zeros });
   const [loading, setLoading] = useState(false);

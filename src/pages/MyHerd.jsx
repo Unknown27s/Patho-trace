@@ -82,7 +82,7 @@ export default function MyHerd() {
                   <div className="grid grid-cols-3 gap-2 text-xs text-center">
                     <div className="bg-slate-50 border rounded-xl p-2"><div className="font-bold">{h.yieldL}L</div><div className="text-slate-500">Milk</div></div>
                     <div className="bg-slate-50 border rounded-xl p-2"><div className="font-bold">{h.scc}k</div><div className="text-slate-500">SCC</div></div>
-                    <div className="bg-slate-50 border rounded-xl p-2"><div className="font-bold">{p ? (p.live ? "🟢 Live" : "🟡 Est.") : "—"}</div><div className="text-slate-500">Result</div></div>
+                    <div className="bg-slate-50 border rounded-xl p-2"><div className="font-bold">{p ? (p.model === "local" ? "🟢 Model" : p.live ? "🟢 Live" : "🟡 Est.") : "—"}</div><div className="text-slate-500">Result</div></div>
                   </div>
                   <div className="h-11 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-xs font-bold gap-1">
                     <span className="material-symbols-outlined text-[18px]">labs</span> {p ? "See result & advice →" : "🔍 Tap to predict →"}
@@ -111,7 +111,7 @@ export default function MyHerd() {
                         <td className="px-3 py-3 text-center">
                           {h.predicting ? "⏳…" : p ? <span className="px-2 py-1 rounded-full font-bold bg-slate-900 text-white">{p.class} {Math.round(p.display_score * 100)}%</span> : <span className="text-slate-400">—</span>}
                         </td>
-                        <td className="px-3 py-3 text-center">{p ? (p.live ? "🟢 live" : "🟡 offline") : "—"}</td>
+                        <td className="px-3 py-3 text-center">{p ? (p.model === "local" ? "🟢 on-device" : p.live ? "🟢 live" : "🟡 offline") : "—"}</td>
                         <td className="px-3 py-3 text-center whitespace-nowrap">
                           <button onClick={() => predictCow(h.id, h.features)} disabled={h.predicting} className="px-3 py-1.5 rounded-full bg-emerald-700 text-white font-bold text-xs mr-1">Predict</button>
                           <Link to={`${base}/cow/${h.id}`} className="px-3 py-1.5 rounded-full bg-slate-100 border font-bold text-xs">Open</Link>

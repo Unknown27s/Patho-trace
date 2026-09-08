@@ -1,20 +1,12 @@
-import { Client } from "@gradio/client";
-import { MODEL_API_BASE, FEATURE_ORDER } from "../config";
+import { FEATURE_ORDER } from "../config";
+import { localPredict } from "./localModel";
 
-// Shared prediction engine: uses the official @gradio/client for the live
-// model call, with a clearly-labelled offline fallback so the SIH field demo
-// never dead-ends (e.g. model asleep / CORS blocked / offline).
-// Used for manual (16-field form), per-cow click, and automatic batch.
-
-let clientPromise = null;
-function getClient() {
-  if (!clientPromise) clientPromise = Client.connect(MODEL_API_BASE);
-  return clientPromise;
-}
-
-export function resetModelClient() {
-  clientPromise = null;
-}
+// Shared prediction engine — PRIMARY: on-device inference of the team's real
+// PLS model (src/lib/localModel.js, weights extracted bit-exact from
+// pls_mastitis_model.pkl). Zero network, zero CORS, works fully offline.
+// The old remote-Gradio path was retired: the hosted space is unhealthy and
+// the true weights now live in the app. The heuristic below remains ONLY as
+// a last-resort guard if local weights ever fail to load.
 
 export async function predictSingle(values) {
   const data = FEATURE_ORDER.map((k) => Number(values?.[k] ?? 0));
@@ -22,18 +14,8 @@ export async function predictSingle(values) {
     throw new Error("All 16 features must be numbers.");
   }
   try {
-    const client = await getClient();
-    const result = await client.predict("/predict_mastitis", data);
-    // Named-endpoint result: result.data = [ { risk_level, raw_score, display_score } ]
-    const out = Array.isArray(result?.data) ? result.data[0] : result?.data;
-    if (!out || typeof out.risk_level === "undefined") {
-      throw new Error("Unexpected model response shape.");
-    }
-    return { risk_level: out.risk_level, raw_score: out.raw_score, display_score: out.display_score, live: true };
+    return localPredict(values); // real model, on-device
   } catch (e) {
-    // Offline fallback — same heuristic as before so results stay consistent.
-    // (CORS blocks / asleep links land here; message preserved for transparency.)
-    resetModelClient();
     const out = offlineEstimate(values);
     return { ...out, live: false, offlineError: e.message };
   }
@@ -62,8 +44,14 @@ export function offlineEstimate(values) {
   };
 }
 
-export function riskClass(level = "") {
-  const l = level.toLowerCase();
+export function modelTag(p) {
+  if (!p) return "";
+  if (p.model === "local") return "🟢 On-device model";
+  if (p.live) return "🟢 LIVE model";
+  return "🟡 offline estimate";
+}
+
+export function riskClass(level = "") {  const l = level.toLowerCase();
   if (l.includes("high")) return "High";
   if (l.includes("moderate") || l.includes("medium")) return "Moderate";
   if (l.includes("low")) return "Low";

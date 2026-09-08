@@ -97,7 +97,7 @@ export default function HerdUpload({ autoPredict = true, compact = false }) {
       replaceHerd(rows, `excel:${file.name}`);
       setMsg(`✅ ${rows.length} cows loaded from ${file.name} — showing below.`);
       if (autoPredict) {
-        setProgress("🤖 Auto-predicting whole herd… (live model, falls back to offline estimate)");
+        setProgress("🤖 Auto-predicting whole herd… (on-device model)");
         // predictAll reads from context; wait a tick so replaceHerd commits first
         setTimeout(async () => {
           try {

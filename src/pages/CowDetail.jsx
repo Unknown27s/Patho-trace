@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useHerd } from "../context/HerdContext";
 import { useAuth } from "../context/AuthContext";
-import { riskStyle, adviceFor, farmerAdvice } from "../lib/predict";
+import { riskStyle, adviceFor, farmerAdvice, modelTag } from "../lib/predict";
 import { deriveIndicators, factorContributions, aiInterpretation, trendSeries, worstQuarter, TREND_METRICS } from "../lib/clinical";
 import TrendChart from "../components/TrendChart";
 import HealthLog from "../components/HealthLog";
@@ -109,7 +109,7 @@ export default function CowDetail() {
             <div className="flex items-center justify-between flex-wrap gap-2">
               <span className={`px-3 py-1.5 rounded-full text-xs font-extrabold ${st.badge}`}>{p.risk_level}</span>
               <span className="text-xs font-bold text-slate-600">
-                Score {Number(p.raw_score).toFixed(3)} • {pct}% • 7–14d window • {p.live ? "🟢 LIVE model" : "🟡 offline estimate"}
+                Score {Number(p.raw_score).toFixed(3)} • {pct}% • 7–14d window • {modelTag(p)}
               </span>
             </div>
             <div className="mt-2 h-2.5 bg-white rounded-full border overflow-hidden">

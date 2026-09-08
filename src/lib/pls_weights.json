@@ -1,0 +1,39 @@
+{
+  "order": [
+    "lnVAR_activity",
+    "acf_activity",
+    "lnVAR_rumination",
+    "acf_rumination",
+    "lnVAR_temperature",
+    "acf_temperature",
+    "lnVAR_milkyield",
+    "acf_milkyield",
+    "lnVAR_EC_LF",
+    "acf_EC_LF",
+    "lnVAR_EC_RF",
+    "acf_EC_RF",
+    "lnVAR_EC_LR",
+    "acf_EC_LR",
+    "lnVAR_EC_RR",
+    "acf_EC_RR"
+  ],
+  "weights": [
+    0.01577977,
+    0.04312534,
+    0.04785897,
+    0.03364049,
+    0.2573584,
+    0.22900538,
+    0.14444297,
+    0.12492332,
+    0.11019533,
+    0.15229301,
+    0.11877458,
+    0.07210021,
+    0.11975849,
+    0.10838307,
+    0.12551909,
+    0.08775054
+  ],
+  "intercept": 3.45515652
+}

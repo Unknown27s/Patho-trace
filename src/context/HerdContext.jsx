@@ -125,6 +125,7 @@ export function HerdProvider({ children }) {
         raw_score: out.raw_score,
         display_score: out.display_score,
         live: out.live !== false,
+        model: out.model || "remote",
         at: new Date().toISOString(),
         class: riskClass(out.risk_level),
       };
