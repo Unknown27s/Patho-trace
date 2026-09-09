@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ModelFrame from "../components/ModelFrame";
 import MastitisPredictor from "../components/MastitisPredictor";
@@ -16,6 +17,33 @@ export default function PcDashboard() {
   const { logout } = useAuth();
   const { cows, source, predictAll } = useHerd();
   const nav = useNavigate();
+  const [busyAll, setBusyAll] = useState(false);
+
+  const runAll = async () => {
+    setBusyAll(true);
+    try { await predictAll(); } finally { setBusyAll(false); }
+  };
+
+  const exportCSV = () => {
+    const header = ["id", "name", "breed", "age", "lactation", "stall", "yieldL", "scc", "risk_class", "risk_level", "score_pct", "predicted_at"];
+    const lines = cows.map((c) => [
+      c.id, c.name, c.breed, c.age, c.lactation, c.stall, c.yieldL, c.scc,
+      c.prediction?.class || "", c.prediction?.risk_level || "",
+      c.prediction ? Math.round(Number(c.prediction.display_score ?? 0) * 100) : "",
+      c.prediction?.at || "",
+    ]);
+    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const csv = [header, ...lines].map((r) => r.map(esc).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pathotracer_herd.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
   return (
     <>
       <div>
@@ -58,7 +86,7 @@ export default function PcDashboard() {
               <div className="mt-2 flex items-center justify-between flex-wrap gap-2">
                 <p className="text-xs text-slate-500">Excel rows → live herd below. Click any cow for per-cow prediction, or run automatic batch:</p>
                 <div className="flex gap-2">
-                  <button onClick={() => predictAll()} className="px-3 py-2 rounded-full bg-slate-900 text-white text-xs font-bold">🤖 Auto-predict all {cows.length} cows</button>
+                  <button onClick={runAll} disabled={busyAll} className="px-3 py-2 rounded-full bg-slate-900 text-white text-xs font-bold disabled:opacity-60">{busyAll ? "⏳ Predicting…" : `🤖 Auto-predict all ${cows.length} cows`}</button>
                   <Link to="/doctor/herd" className="px-3 py-2 rounded-full bg-emerald-700 text-white text-xs font-bold">Open herd table →</Link>
                 </div>
               </div>
@@ -154,7 +182,7 @@ export default function PcDashboard() {
           <div id="priority" className="bg-white rounded-2xl border shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b flex items-center justify-between">
               <div><h3 className="font-jakarta font-bold">{t("animalTableTitle")}</h3><p className="text-xs text-slate-500">{t("animalTableSub")}</p></div>
-              <div className="flex gap-2"><button className="px-3 py-1.5 rounded-full border bg-slate-50 text-xs font-bold">Export CSV</button><Link to="/doctor/vet" className="px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-bold">WhatsApp SOP to Vet</Link></div>
+              <div className="flex gap-2"><button onClick={exportCSV} className="px-3 py-1.5 rounded-full border bg-slate-50 text-xs font-bold">Export CSV</button><Link to="/doctor/sop" className="px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-bold">Open SOP protocol</Link></div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
@@ -166,19 +194,19 @@ export default function PcDashboard() {
                     <td className="px-4 py-3 flex items-center gap-2"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqpb-AIQJbaaZPnOJ4fHMCRQJDq2DCdfd1XtUDisbRoTcuYbwKAQwXzL2pzvVl5DKGWHnq8JCvMU_AHAR81d3tagGfYVttI2WTQEo03TQ4SAT79mv1NI5BRoUGIus3laBT83IBYUryT04g7baUf9lzPjaKfHwHkU5C8AHj4UNdopePUQ8d_QAtcKICEhgH3RkRgpMEcUh5N9OqGgqVAy-va4kDocK87b-n0rIaZ5dvVJlpGkqmoeFT2g" className="w-9 h-9 rounded-lg object-cover" alt="ganga"/><div><div className="font-bold">COW-024 'Ganga'</div><div className="text-slate-500">#4402 • Stall 4</div></div></td>
                     <td className="px-3 py-3 text-center">Gir Cross • 4th • 6 yrs</td><td className="px-3 py-3 text-center font-bold text-rose-700">12.5 L (-12%)</td><td className="px-3 py-3 text-center font-bold text-rose-700">420k</td>
                     <td className="px-3 py-3"><span className="px-1.5 py-1 rounded bg-emerald-100 text-emerald-800 text-[11px]">FL 37.8°</span> <span className="px-1.5 py-1 rounded bg-red-600 text-white font-bold text-[11px]">RR 39.1°</span></td>
-                    <td className="px-3 py-3 text-center font-bold text-rose-700">+1.4</td><td className="px-3 py-3 text-center">Temp 39.2° • Rumination ↓18%</td><td className="px-3 py-3"><span className="px-3 py-1 rounded-full bg-red-600 text-white font-bold">87% HIGH</span></td><td className="px-3 py-3"><button className="px-3 py-1.5 rounded-full bg-emerald-700 text-white font-bold text-xs">Log CMT</button></td>
+                    <td className="px-3 py-3 text-center font-bold text-rose-700">+1.4</td><td className="px-3 py-3 text-center">Temp 39.2° • Rumination ↓18%</td><td className="px-3 py-3"><span className="px-3 py-1 rounded-full bg-red-600 text-white font-bold">87% HIGH</span></td><td className="px-3 py-3"><Link to="/doctor/cow/COW-024" className="px-3 py-1.5 rounded-full bg-emerald-700 text-white font-bold text-xs inline-block">Log CMT</Link></td>
                   </tr>
                   <tr>
                     <td className="px-4 py-3 flex items-center gap-2"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMl8COrOMrj_SSxfTMsMsC6cMrK616BH4CL6SzvUlhY22N4q8Zb4yZmhVfMsgX8FZXdsoa6BqVSvlAQR0pxnPMULed9oK7K8EF3JylhvetDB1_VIryzUgtBgtWW7quiYixTfA2xfxXhf9_jAJDKqaP9gqVAy-va4kDocK87b-n0rIaZ5dvVJlpGkqmoeFT2g" className="w-9 h-9 rounded-lg object-cover" alt="gauri"/><div><div className="font-bold">COW-018 'Gauri'</div><div className="text-slate-500">#3819 • Murrah</div></div></td>
-                    <td className="px-3 py-3 text-center">Murrah • 3rd • 5 yrs</td><td className="px-3 py-3 text-center font-bold">9.8 L (-9%)</td><td className="px-3 py-3 text-center">380k</td><td className="px-3 py-3 text-center"><span className="px-2 py-1 rounded bg-red-100 text-red-700">RH Hot</span></td><td className="px-3 py-3 text-center font-bold text-rose-700">+1.1</td><td className="px-3 py-3 text-center">Feeding ↓12%</td><td className="px-3 py-3"><span className="px-3 py-1 rounded-full bg-red-100 text-red-700 font-bold border border-red-200">79% HIGH</span></td><td className="px-3 py-3"><button className="px-3 py-1.5 rounded-full bg-emerald-700 text-white font-bold text-xs">Log CMT</button></td>
+                    <td className="px-3 py-3 text-center">Murrah • 3rd • 5 yrs</td><td className="px-3 py-3 text-center font-bold">9.8 L (-9%)</td><td className="px-3 py-3 text-center">380k</td><td className="px-3 py-3 text-center"><span className="px-2 py-1 rounded bg-red-100 text-red-700">RH Hot</span></td><td className="px-3 py-3 text-center font-bold text-rose-700">+1.1</td><td className="px-3 py-3 text-center">Feeding ↓12%</td><td className="px-3 py-3"><span className="px-3 py-1 rounded-full bg-red-100 text-red-700 font-bold border border-red-200">79% HIGH</span></td><td className="px-3 py-3"><Link to="/doctor/cow/COW-018" className="px-3 py-1.5 rounded-full bg-emerald-700 text-white font-bold text-xs inline-block">Log CMT</Link></td>
                   </tr>
                   <tr>
                     <td className="px-4 py-3 flex items-center gap-2"><div className="w-9 h-9 rounded-lg bg-sky-100 flex items-center justify-center"><span className="material-symbols-outlined text-sky-700">cruelty_free</span></div><div><div className="font-bold">COW-031 'Lakshmi'</div><div className="text-slate-500">#5104 • HF Cross</div></div></td>
-                    <td className="px-3 py-3 text-center">HF Cross • 2nd • 4 yrs</td><td className="px-3 py-3 text-center">15.2 L (-14%)</td><td className="px-3 py-3 text-center">290k</td><td className="px-3 py-3 text-center"><span className="px-2 py-1 rounded bg-sky-100 text-sky-800">LF +0.8°C</span></td><td className="px-3 py-3 text-center">+0.6</td><td className="px-3 py-3 text-center">Vaccinated ✓</td><td className="px-3 py-3"><span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-bold">74% MOD</span></td><td className="px-3 py-3"><button className="px-3 py-1.5 rounded-full bg-slate-100 border font-bold text-xs">Heat Map</button></td>
+                    <td className="px-3 py-3 text-center">HF Cross • 2nd • 4 yrs</td><td className="px-3 py-3 text-center">15.2 L (-14%)</td><td className="px-3 py-3 text-center">290k</td><td className="px-3 py-3 text-center"><span className="px-2 py-1 rounded bg-sky-100 text-sky-800">LF +0.8°C</span></td><td className="px-3 py-3 text-center">+0.6</td><td className="px-3 py-3 text-center">Vaccinated ✓</td><td className="px-3 py-3"><span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-bold">74% MOD</span></td><td className="px-3 py-3"><Link to="/doctor/cow/COW-031" className="px-3 py-1.5 rounded-full bg-slate-100 border font-bold text-xs inline-block">Heat Map</Link></td>
                   </tr>
                   <tr className="bg-amber-50/40">
                     <td className="px-4 py-3 flex items-center gap-2"><div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center"><span className="material-symbols-outlined text-amber-700">pets</span></div><div><div className="font-bold">COW-007 'Saras'</div><div className="text-slate-500">#2988 • Gir</div></div></td>
-                    <td className="px-3 py-3 text-center">Gir • 5th • 7 yrs</td><td className="px-3 py-3 text-center">11.0 L (-6%)</td><td className="px-3 py-3 text-center">210k</td><td className="px-3 py-3 text-center">Mild diffuse</td><td className="px-3 py-3 text-center">+0.4</td><td className="px-3 py-3 text-center">THI high</td><td className="px-3 py-3"><span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-bold">68% MOD</span></td><td className="px-3 py-3"><button className="px-3 py-1.5 rounded-full bg-slate-100 border font-bold text-xs">Watch</button></td>
+                    <td className="px-3 py-3 text-center">Gir • 5th • 7 yrs</td><td className="px-3 py-3 text-center">11.0 L (-6%)</td><td className="px-3 py-3 text-center">210k</td><td className="px-3 py-3 text-center">Mild diffuse</td><td className="px-3 py-3 text-center">+0.4</td><td className="px-3 py-3 text-center">THI high</td><td className="px-3 py-3"><span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-bold">68% MOD</span></td><td className="px-3 py-3"><Link to="/doctor/cow/COW-007" className="px-3 py-1.5 rounded-full bg-slate-100 border font-bold text-xs inline-block">Watch</Link></td>
                   </tr>
                 </tbody>
               </table>

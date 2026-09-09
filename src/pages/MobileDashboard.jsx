@@ -5,13 +5,14 @@ import HerdUpload from "../components/HerdUpload";
 import SavingsStrip from "../components/SavingsStrip";
 import Logo from "../components/Logo";
 import { useLanguage } from "../context/LanguageContext";
+import { langLabels } from "../i18n/translations";
 import { useAuth } from "../context/AuthContext";
 import { useHerd } from "../context/HerdContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useAudioBriefing } from "../hooks/useAudioBriefing";
 
 export default function MobileDashboard() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { playing, toggle } = useAudioBriefing();
   const { logout } = useAuth();
   const { cows, source } = useHerd();
@@ -56,7 +57,7 @@ export default function MobileDashboard() {
             <div><p className="text-[11px] text-emerald-300 uppercase tracking-wider">Automated Audio Briefing</p><h4 className="font-jakarta font-bold text-white">Today's Barn Health Pulse</h4></div>
             <div className="bg-white/15 backdrop-blur border border-white/20 rounded-xl p-2 flex items-center justify-between gap-2">
               <button onClick={toggle} className="flex-1 flex items-center gap-2 text-left"><div className={`w-9 h-9 rounded-full flex items-center justify-center ${playing?"bg-red-500":"bg-emerald-500"}`}><span className="material-symbols-outlined text-white">{playing ? 'pause' : 'play_arrow'}</span></div><div><span className="text-xs font-bold text-white block">{playing ? t("briefingPlaying") : t("audioBriefing")}</span><span className="text-[11px] text-white/70">{flagged ? `${flagged} animals need attention` : "Predict herd to see attention list"}</span></div></button>
-              <span className="h-8 px-3 rounded-lg bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center">EN</span>
+              <span className="h-8 px-3 rounded-lg bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center">{langLabels[lang] || "EN"}</span>
             </div>
           </div>
         </section>
@@ -136,22 +137,22 @@ export default function MobileDashboard() {
         </section>
 
         <section id="priority" className="space-y-3 lg:col-span-8">
-          <div className="flex justify-between items-center px-1"><div><h3 className="font-jakarta font-bold text-sm">{t("animalTableTitle")}</h3><span className="text-xs text-slate-500">{flagged} flagged • CMT paddle required</span></div><span className="px-3 py-1 rounded-full bg-slate-100 border text-xs font-bold">Filter ({flagged})</span></div>
+          <div className="flex justify-between items-center px-1"><div><h3 className="font-jakarta font-bold text-sm">{t("animalTableTitle")}</h3><span className="text-xs text-slate-500">{flagged} flagged • CMT paddle required</span></div><Link to="/farmer/herd" className="px-3 py-1 rounded-full bg-slate-100 border text-xs font-bold">Filter ({flagged})</Link></div>
           <div className="bg-white rounded-2xl p-4 border-2 border-red-500 shadow-sm space-y-3">
             <div className="flex items-start justify-between gap-2"><div className="flex gap-3"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqpb-AIQJbaaZPnOJ4fHMCRQJDq2DCdfd1XtUDisbRoTcuYbwKAQwXzL2pzvVl5DKGWHnq8JCvMU_AHAR81d3tagGfYVttI2WTQEo03TQ4SAT79mv1NI5BRoUGIus3laBT83IBYUryT04g7baUf9lzPjaKfHwHkU5C8AHj4UNdopePUQ8d_QAtcKICEhgH3RkRgpMEcUh5N9OqGgqVAy-va4kDocK87b-n0rIaZ5dvVJlpGkqmoeFT2g" className="w-16 h-16 rounded-xl object-cover" alt="ganga"/><div><div className="font-jakarta font-extrabold">COW-024 'Ganga'</div><div className="text-xs text-slate-500">Gir Cross • 4th Lact • #4402</div><span className="inline-block mt-1 text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">12.5 L (-12%)</span></div></div><span className="px-2 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200 text-xs font-extrabold">87% (7-10d)</span></div>
             <div className="bg-slate-50 rounded-xl p-2.5 border"><div className="flex justify-between text-xs font-semibold mb-1.5"><span className="flex items-center gap-1"><span className="material-symbols-outlined text-rose-600 text-[16px]">thermostat</span> 4-Quadrant Udder Heat</span><span className="bg-rose-50 border border-rose-200 px-2 py-0.5 rounded text-rose-700">RR +1.4 mS/cm</span></div><div className="grid grid-cols-2 gap-1.5 text-xs text-center"><div className="bg-white border border-emerald-200 rounded-lg py-1.5 font-semibold text-emerald-800">FL 37.8° Normal</div><div className="bg-white border border-emerald-200 rounded-lg py-1.5 font-semibold text-emerald-800">FR 37.9° Normal</div><div className="bg-white border rounded-lg py-1.5">RL 38.2° Mild</div><div className="bg-rose-600 text-white rounded-lg py-1.5 font-bold">RR 39.1° High!</div></div></div>
             <div className="flex justify-between text-xs text-slate-500 px-1"><span>SCC Est: <b className="text-rose-700">420k</b></span><span className="text-amber-700">Stall #4 damp</span></div>
-            <div className="grid grid-cols-2 gap-2"><button className="h-11 bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-1 text-xs"><span className="material-symbols-outlined text-[18px]">science</span> Log CMT</button><button className="h-11 bg-slate-100 rounded-xl font-semibold text-xs">View Profile →</button></div>
+            <div className="grid grid-cols-2 gap-2"><Link to="/farmer/cow/COW-024" className="h-11 bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-1 text-xs"><span className="material-symbols-outlined text-[18px]">science</span> Log CMT</Link><Link to="/farmer/cow/COW-024" className="h-11 bg-slate-100 rounded-xl font-semibold text-xs flex items-center justify-center">View Profile →</Link></div>
           </div>
           <div className="bg-white rounded-2xl p-4 border-l-4 border-rose-500 border shadow-sm space-y-3">
             <div className="flex items-start justify-between gap-2"><div className="flex gap-3"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMl8COrOMrj_SSxfTMsMsC6cMrK616BH4CL6SzvUlhY22N4q8Zb4yZmhVfMsgX8FZXdsoa6BqVSvlAQR0pxnPMULed9oK7K8EF3JylhvetDB1_VIryzUgtBgtWW7quiYixTfA2xfxXhf9_jAJDKqaP9gqVAy-va4kDocK87b-n0rIaZ5dvVJlpGkqmoeFT2g" className="w-16 h-16 rounded-xl object-cover" alt="gauri"/><div><div className="font-jakarta font-extrabold">COW-018 'Gauri'</div><div className="text-xs text-slate-500">Murrah • 3rd Lact • #3819</div><span className="mt-1 inline-block text-xs font-bold bg-rose-50 px-2 py-0.5 rounded">9.8 L (-9%)</span></div></div><span className="px-2 py-1 rounded-full bg-rose-100 text-rose-800 border text-xs font-bold">79% (9d)</span></div>
             <div className="bg-slate-50 rounded-xl p-2.5 border flex justify-between text-xs"><span className="text-rose-700 font-semibold flex items-center gap-1"><span className="material-symbols-outlined">electric_bolt</span> RH +1.1 mS/cm</span><span className="font-bold">06:15 AM</span></div>
-            <button className="w-full h-11 bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1"><span className="material-symbols-outlined">science</span> Log CMT Test</button>
+            <Link to="/farmer/cow/COW-018" className="w-full h-11 bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1"><span className="material-symbols-outlined">science</span> Log CMT Test</Link>
           </div>
           <div className="bg-white rounded-2xl p-4 border-l-4 border-sky-500 border shadow-sm space-y-3">
             <div className="flex items-start justify-between gap-2"><div className="flex gap-3"><div className="w-16 h-16 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center"><span className="material-symbols-outlined text-sky-700 text-[32px]">cruelty_free</span></div><div><div className="font-jakarta font-extrabold">COW-031 'Lakshmi'</div><div className="text-xs text-slate-500">HF Cross • 2nd Lact • #5104</div><span className="mt-1 inline-block text-xs font-bold bg-sky-50 px-2 py-0.5 rounded">15.2 L (-14%)</span></div></div><span className="px-2 py-1 rounded-full bg-sky-100 text-sky-800 border text-xs font-bold">74% (12d)</span></div>
             <div className="bg-slate-50 rounded-xl p-2.5 border flex justify-between text-xs"><span className="text-sky-700 font-semibold flex items-center gap-1"><span className="material-symbols-outlined">heat_pump</span> LF +0.8°C</span><span className="font-bold">SCC 290k</span></div>
-            <button className="w-full h-11 bg-slate-100 rounded-xl font-semibold text-xs flex items-center justify-center gap-1"><span className="material-symbols-outlined text-sky-700">visibility</span> View Heat Map & SOP</button>
+            <Link to="/farmer/cow/COW-031" className="w-full h-11 bg-slate-100 rounded-xl font-semibold text-xs flex items-center justify-center gap-1"><span className="material-symbols-outlined text-sky-700">visibility</span> View Heat Map & SOP</Link>
           </div>
         </section>
 

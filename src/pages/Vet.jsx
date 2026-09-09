@@ -6,12 +6,13 @@ import Toast from "../components/Toast";
 
 export default function Vet(){
   const { user } = useAuth();
-  const base = user?.role === "doctor" ? "/doctor" : "/farmer";
+  // Farmer-only page — doctor route (/doctor/vet) was removed.
+  const base = "/farmer";
   const [toast,setToast]=useState("");
   return (
     <div className="min-h-screen bg-[#f1f5f9]">
       <header className="sticky top-0 bg-white border-b px-4 lg:px-6 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-3"><Link to={base} className="w-9 h-9 rounded-xl bg-slate-100 border flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></Link><div><h1 className="font-jakarta font-extrabold">Call Veterinarian {user?.role === "doctor" ? "(Doctor console)" : ""}</h1><p className="text-xs text-slate-500">Field Vet • On Duty</p></div></div>
+        <div className="flex items-center gap-3"><Link to={base} className="w-9 h-9 rounded-xl bg-slate-100 border flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></Link><div><h1 className="font-jakarta font-extrabold">Call Veterinarian</h1><p className="text-xs text-slate-500">Field Vet • On Duty • Farmer only</p></div></div>
         <LanguageSwitcher compact/>
       </header>
       <main className="max-w-3xl mx-auto p-4 space-y-4">
@@ -20,7 +21,12 @@ export default function Vet(){
           <div className="flex-1 text-center sm:text-left"><div className="font-jakarta font-extrabold text-lg">Dr. S. Radhakrishnan, BVSc</div><div className="text-sm text-slate-500">Anand Milk Union Central Veterinary Unit</div><div className="text-sm text-emerald-700 font-semibold flex items-center justify-center sm:justify-start gap-1 mt-1"><span className="material-symbols-outlined text-[16px]">location_on</span>Sector 3 • 8 mins away • Available</div></div>
           <div className="flex sm:flex-col gap-2">
             <a href="tel:+919876543210" className="h-11 bg-emerald-700 text-white rounded-xl px-4 font-bold flex items-center justify-center gap-1 text-sm"><span className="material-symbols-outlined">call</span> Call</a>
-            <button onClick={()=>setToast("Health report & SOP sent on WhatsApp ✓")} className="h-11 bg-slate-100 border rounded-xl px-4 font-bold flex items-center justify-center gap-1 text-sm"><span className="material-symbols-outlined text-emerald-700">share</span> WhatsApp</button>
+            <a
+              href={`https://wa.me/919876543210?text=${encodeURIComponent("PathoTracer farmer report: 4-Well CMT pending — high SCC 420k/380k (COW-024/018). RR udder thermal 39.1°C, suspect subclinical mastitis. Requesting visit. SOP: 0.5% Povidone Iodine teat dip post-milk, re-check in 48h.")}`}
+              target="_blank" rel="noreferrer"
+              onClick={()=>setToast("Opening WhatsApp with health report ✓")}
+              className="h-11 bg-slate-100 border rounded-xl px-4 font-bold flex items-center justify-center gap-1 text-sm"
+            ><span className="material-symbols-outlined text-emerald-700">share</span> WhatsApp</a>
           </div>
         </div>
         <div className="bg-white rounded-2xl border p-5 shadow-sm">

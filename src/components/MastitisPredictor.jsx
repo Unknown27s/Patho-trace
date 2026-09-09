@@ -81,6 +81,17 @@ export default function MastitisPredictor({ compact = false }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [offlineNote, setOfflineNote] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyJSON = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify({ inputs: values, result }, null, 2));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   const set = (k, v) => setValues((p) => ({ ...p, [k]: v }));
 
@@ -202,8 +213,8 @@ export default function MastitisPredictor({ compact = false }) {
               >
                 WhatsApp report to vet
               </a>
-              <button onClick={() => navigator.clipboard?.writeText(JSON.stringify({ inputs: values, result }, null, 2))} className="px-3 py-2 rounded-full bg-white border text-xs font-bold">
-                Copy JSON
+              <button onClick={copyJSON} className="px-3 py-2 rounded-full bg-white border text-xs font-bold">
+                {copied ? "Copied ✓" : "Copy JSON"}
               </button>
             </div>
           </div>

@@ -4,6 +4,8 @@ import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import { useHerd } from "../context/HerdContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import Toast from "../components/Toast";
+import { langLabels, langOrder } from "../i18n/translations";
 import { useAudioBriefing } from "../hooks/useAudioBriefing";
 
 export default function Alerts(){
@@ -13,6 +15,12 @@ export default function Alerts(){
   const { cows } = useHerd();
   const { playing, toggle } = useAudioBriefing();
   const [filter,setFilter]=useState("All");
+  const [acked, setAcked] = useState({});
+  const [toast, setToast] = useState("");
+  const ack = (id) => {
+    setAcked((p) => ({ ...p, [id]: true }));
+    setToast("Alert acknowledged ✓");
+  };
   // Alerts derive from live herd predictions (Excel data), fallback to demo text
   const derived = cows.filter(c=>c.prediction && (c.prediction.class==="High"||c.prediction.class==="Moderate")).map((c)=>({
     id: `live-${c.id}`, cow: `${c.id} ${c.name}`, level: c.prediction.class==="High"?"Critical":"High",
@@ -39,14 +47,23 @@ export default function Alerts(){
       </header>
       <main className="max-w-3xl mx-auto p-4 space-y-4">
         <div className="flex gap-2 flex-wrap">{["All","Critical","High","Warning","Info"].map(f=>(<button key={f} onClick={()=>setFilter(f)} className={`px-3 py-1.5 rounded-full text-xs font-bold border ${filter===f?"bg-slate-900 text-white":"bg-white"}`}>{f}</button>))}</div>
-        {shown.map(a=>(
-          <div key={a.id} className={`bg-white rounded-2xl border-l-4 p-4 border shadow-sm ${a.color}`}>
+        {shown.map(a=>{
+          const done = !!acked[a.id];
+          const shareText = `PathoTracer alert [${a.level}] ${a.cow}: ${a.msg} (${a.time})`;
+          return (
+          <div key={a.id} className={`bg-white rounded-2xl border-l-4 p-4 border shadow-sm ${a.color} ${done ? "opacity-60" : ""}`}>
             <div className="flex justify-between"><span className="font-bold text-sm">{a.cow}</span><span className="text-xs text-slate-500">{a.time}</span></div>
             <p className="text-sm mt-1">{a.msg}</p>
-            <div className="mt-3 flex gap-2"><button onClick={()=>alert('Marked as read — demo')} className="px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-bold">Acknowledge</button><button onClick={()=>alert('WhatsApp sent — demo')} className="px-3 py-1.5 rounded-full bg-slate-100 border text-xs font-bold">Share to Vet</button></div>
+            {done && <p className="mt-1 text-[11px] font-bold text-emerald-700">✓ Acknowledged</p>}
+            <div className="mt-3 flex gap-2">
+              {!done && <button onClick={()=>ack(a.id)} className="px-3 py-1.5 rounded-full bg-emerald-700 text-white text-xs font-bold">Acknowledge</button>}
+              <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full bg-slate-100 border text-xs font-bold inline-block">{user?.role === "doctor" ? "Share to Farmer" : "Share to Vet"}</a>
+            </div>
           </div>
-        ))}
-        <div className="text-center text-xs text-slate-400 pt-6">Real-time alerts via Push / SMS / WhatsApp • {t("language")}: EN/HI/GU</div>
+          );
+        })}
+        <div className="text-center text-xs text-slate-400 pt-6">Real-time alerts via Push / SMS / WhatsApp • {t("language")}: {langOrder.map(l => langLabels[l]).join(" / ")}</div>
+        <Toast msg={toast} onClose={()=>setToast("")}/>
       </main>
     </div>
   )

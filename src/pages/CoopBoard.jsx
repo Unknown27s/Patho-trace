@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useHerd } from "../context/HerdContext";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 // Dairy Cooperative / herd-manager board (doctor portal only).
 // Aggregated KPIs + farm-unit comparison + schematic cluster map.
@@ -56,7 +57,10 @@ export default function CoopBoard() {
           <Link to="/doctor" className="w-9 h-9 rounded-xl bg-slate-100 border flex items-center justify-center"><span className="material-symbols-outlined">arrow_back</span></Link>
           <div><h1 className="font-extrabold">Co-op Board — herd overview</h1><p className="text-xs text-slate-500">{cows.length} animals • source: {source} • manager view, no sensor detail</p></div>
         </div>
-        <Link to="/doctor/herd" className="px-3 py-2 rounded-full bg-emerald-700 text-white text-xs font-bold">Open herd table →</Link>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher compact />
+          <Link to="/doctor/herd" className="px-3 py-2 rounded-full bg-emerald-700 text-white text-xs font-bold">Open herd table →</Link>
+        </div>
       </header>
 
       <main className="max-w-6xl mx-auto p-4 space-y-4">

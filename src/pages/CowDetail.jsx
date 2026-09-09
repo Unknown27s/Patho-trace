@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useHerd } from "../context/HerdContext";
 import { useAuth } from "../context/AuthContext";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import { riskStyle, adviceFor, farmerAdvice, modelTag } from "../lib/predict";
 import { deriveIndicators, factorContributions, aiInterpretation, trendSeries, worstQuarter, TREND_METRICS } from "../lib/clinical";
 import TrendChart from "../components/TrendChart";
@@ -85,9 +86,12 @@ export default function CowDetail() {
             <p className="text-xs text-slate-500">{cow.breed} • {cow.lactation} lact • {cow.age} • {cow.stall} • {role === "doctor" ? "Doctor · Animal 360°" : "Farmer · What to do"}</p>
           </div>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-bold ${role === "doctor" ? "bg-slate-900 text-white" : "bg-emerald-100 text-emerald-800 border border-emerald-200"}`}>
-          {role === "doctor" ? "🩺 Doctor" : "🌾 Farmer"}
-        </span>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher compact />
+          <span className={`px-3 py-1 rounded-full text-xs font-bold ${role === "doctor" ? "bg-slate-900 text-white" : "bg-emerald-100 text-emerald-800 border border-emerald-200"}`}>
+            {role === "doctor" ? "🩺 Doctor" : "🌾 Farmer"}
+          </span>
+        </div>
       </header>
 
       <main className="max-w-4xl mx-auto p-4 space-y-4">
@@ -125,9 +129,13 @@ export default function CowDetail() {
                 href={`https://wa.me/?text=${encodeURIComponent(`PathoTracer report ${cow.id} ${cow.name}: ${p.risk_level}, score ${p.raw_score} (${pct}%). Yield ${cow.yieldL}L SCC ${cow.scc}k`)}`}
                 target="_blank" rel="noreferrer" className="px-3 py-2 rounded-full bg-emerald-700 text-white text-xs font-bold"
               >
-                WhatsApp this report to vet
+                {role === "doctor" ? "WhatsApp this report to farmer" : "WhatsApp this report to vet"}
               </a>
-              <Link to={`${base}/vet`} className="px-3 py-2 rounded-full bg-white border text-xs font-bold">Call vet →</Link>
+              {role === "farmer" ? (
+                <Link to={`${base}/vet`} className="px-3 py-2 rounded-full bg-white border text-xs font-bold">Call vet →</Link>
+              ) : (
+                <Link to={`${base}/sop`} className="px-3 py-2 rounded-full bg-white border text-xs font-bold">Open SOP protocol →</Link>
+              )}
             </div>
           </div>
         )}

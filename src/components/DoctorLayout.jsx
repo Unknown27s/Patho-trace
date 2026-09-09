@@ -36,7 +36,7 @@ export default function DoctorLayout() {
           <NavLink to="/doctor/predict" className={item}><span className="material-symbols-outlined">biotech</span> {t("aiShort")}</NavLink>
           <NavLink to="/doctor/alerts" className={item}><span className="material-symbols-outlined">ecg_heart</span> {t("navAlerts")}</NavLink>
           <NavLink to="/doctor/sop" className={item}><span className="material-symbols-outlined">assignment_turned_in</span> {t("navSop")}</NavLink>
-          <NavLink to="/doctor/vet" className={item}><span className="material-symbols-outlined">support_agent</span> {t("navVet")}</NavLink>
+          {/* Call Vet removed for doctor — doctor IS the vet. Farmers keep /farmer/vet. */}
           <div className="pt-4 mt-4 border-t border-white/10">
             <div className="px-3 text-[11px] font-bold tracking-widest text-white/40 uppercase">Risk Categories</div>
             <div className="mt-2 space-y-1.5 px-3 text-xs">
@@ -71,7 +71,7 @@ export default function DoctorLayout() {
           <NavLink to="/doctor/herd" className={mob}><span className="material-symbols-outlined text-[22px]">pets</span>{t("navHerd")}</NavLink>
           <NavLink to="/doctor/predict" className={mob}><span className="material-symbols-outlined text-[22px]">biotech</span>AI Lab</NavLink>
           <NavLink to="/doctor/alerts" className={mob}><span className="material-symbols-outlined text-[22px]">ecg_heart</span>{t("navAlerts")}</NavLink>
-          <NavLink to="/doctor/vet" className={mob}><span className="material-symbols-outlined text-[22px]">support_agent</span>Vet</NavLink>
+          <NavLink to="/doctor/sop" className={mob}><span className="material-symbols-outlined text-[22px]">assignment_turned_in</span>SOP</NavLink>
         </div>
       </nav>
     </div>

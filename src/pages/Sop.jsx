@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
@@ -16,9 +16,16 @@ export default function Sop(){
   const { user } = useAuth();
   const base = user?.role === "doctor" ? "/doctor" : "/farmer";
   const { playing, toggle } = useAudioBriefing();
-  const [checked,setChecked]=useState({});
+  const [checked,setChecked]=useState(() => {
+    try { return JSON.parse(localStorage.getItem("pathotracer_sop_v1") || "{}"); }
+    catch { return {}; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem("pathotracer_sop_v1", JSON.stringify(checked)); } catch { /* ignore */ }
+  }, [checked]);
   const doneCount=steps.filter(s=>checked[s.num]).length;
   const toggleSop=(n)=>{ setChecked(p=>({...p,[n]:!p[n]})); };
+  const resetSop=()=>setChecked({});
   return (
     <div className="min-h-screen bg-[#f1f5f9]">
       <header className="sticky top-0 bg-white border-b px-4 lg:px-6 py-3 flex justify-between items-center">
@@ -38,6 +45,7 @@ export default function Sop(){
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-sm">
           💡 <b>{t("saves")}</b> — Early SOP avoids systemic antibiotics and milk tank discard.
         </div>
+        {doneCount > 0 && <button onClick={resetSop} className="w-full h-11 rounded-xl bg-slate-100 border text-xs font-bold">Reset checklist for tomorrow</button>}
       </main>
     </div>
   )

@@ -55,7 +55,7 @@ export default function App() {
                 <Route path="coop" element={<CoopBoard />} />
                 <Route path="alerts" element={<Alerts />} />
                 <Route path="sop" element={<Sop />} />
-                <Route path="vet" element={<Vet />} />
+                {/* No /doctor/vet — doctor IS the vet. Farmers use /farmer/vet. */}
               </Route>
 
               <Route path="/dashboard" element={<DashboardRedirect />} />

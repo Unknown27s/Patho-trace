@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import { langLabels, langOrder } from "../i18n/translations";
 import Logo from "../components/Logo";
 
 function RoleCard({ icon, title, desc, idHint, onUse, active, onClick }) {
@@ -61,7 +62,7 @@ export default function Login() {
             <ul className="mt-4 space-y-2 text-xs">
               <li className="flex gap-2"><span className="material-symbols-outlined text-emerald-300 text-[16px]">check_circle</span> 16-feature lnVAR/ACF predictor (LF/RF/LR/RR quarters)</li>
               <li className="flex gap-2"><span className="material-symbols-outlined text-emerald-300 text-[16px]">check_circle</span> No / Low / Moderate / High risk classes (SIH spec)</li>
-              <li className="flex gap-2"><span className="material-symbols-outlined text-emerald-300 text-[16px]">check_circle</span> English + audio briefing</li>
+              <li className="flex gap-2"><span className="material-symbols-outlined text-emerald-300 text-[16px]">check_circle</span> EN + HI/GU/TA/TE/KN/MR + audio briefing</li>
             </ul>
           </div>
           <div className="mt-6 flex items-center justify-between">
@@ -93,7 +94,7 @@ export default function Login() {
             <button onClick={() => demo("farmer")} className="h-10 rounded-xl bg-slate-100 border text-xs font-bold">1-tap Farmer demo</button>
             <button onClick={() => demo("doctor")} className="h-10 rounded-xl bg-slate-900 text-white text-xs font-bold">1-tap Doctor demo</button>
           </div>
-          <p className="mt-3 text-[11px] text-slate-400 text-center">{t("language")}: English • {t("live")}</p>
+          <p className="mt-3 text-[11px] text-slate-400 text-center">{t("language")}: {langOrder.map(l => langLabels[l]).join(" • ")} • {t("live")}</p>
         </div>
       </div>
     </div>

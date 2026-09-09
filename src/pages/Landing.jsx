@@ -44,7 +44,11 @@ export default function Landing(){
             <Link to={`${base}/herd`} className="bg-white/10 hover:bg-white/20 rounded-xl p-3 border border-white/10 flex items-center gap-2"><span className="material-symbols-outlined">pets</span> {t("navHerd")}</Link>
             <Link to={`${base}/alerts`} className="bg-white/10 hover:bg-white/20 rounded-xl p-3 border border-white/10 flex items-center gap-2"><span className="material-symbols-outlined">ecg_heart</span> {t("navAlerts")}</Link>
             <Link to={`${base}/sop`} className="bg-white/10 hover:bg-white/20 rounded-xl p-3 border border-white/10 flex items-center gap-2"><span className="material-symbols-outlined">assignment_turned_in</span> {t("navSop")}</Link>
-            <Link to={`${base}/vet`} className="bg-white/10 hover:bg-white/20 rounded-xl p-3 border border-white/10 flex items-center gap-2"><span className="material-symbols-outlined">support_agent</span> {t("navVet")}</Link>
+            {base === "/farmer" ? (
+              <Link to={`${base}/vet`} className="bg-white/10 hover:bg-white/20 rounded-xl p-3 border border-white/10 flex items-center gap-2"><span className="material-symbols-outlined">support_agent</span> {t("navVet")}</Link>
+            ) : (
+              <Link to="/doctor/coop" className="bg-white/10 hover:bg-white/20 rounded-xl p-3 border border-white/10 flex items-center gap-2"><span className="material-symbols-outlined">corporate_fare</span> Co-op Board</Link>
+            )}
             <Link to={`${base}/predict`} className="bg-white/10 hover:bg-white/20 rounded-xl p-3 border border-white/10 flex items-center gap-2"><span className="material-symbols-outlined">biotech</span> 16-feature AI Lab (inside)</Link>
           </div>
         </div>
@@ -54,7 +58,7 @@ export default function Landing(){
             <li><b>Problem (10s):</b> "Mastitis shows clots too late — milk is already lost and antibiotics are forced. We catch it <b>7–14 days early</b>."</li>
             <li><b>Two logins (10s):</b> Farmer login <b>farmer/1234</b> → simple shed view in 7 languages. Doctor login <b>doctor/1234</b> → full command center. <i>Same Excel data, different screens.</i></li>
             <li><b>Excel → website (15s):</b> Upload the herd Excel sheet — rows appear instantly, then <b>auto-predict runs for every cow</b> on the live 16-feature model.</li>
-            <li><b>Click a cow (15s):</b> Open COW-024 → press <b>Predict</b> → farmer sees <i>what to do</i>; doctor login sees <i>why</i> (SCC analysis, 7/14/30-day trends, AI factor bars) + <b>WhatsApp report to vet</b>. Co-op board at <b>/doctor/coop</b> shows herd KPIs.</li>
+            <li><b>Click a cow (15s):</b> Open COW-024 → press <b>Predict</b> → farmer sees <i>what to do</i>; doctor login sees <i>why</i> (SCC analysis, 7/14/30-day trends, AI factor bars) + <b>WhatsApp report</b>. Co-op board at <b>/doctor/coop</b> shows herd KPIs.</li>
             <li><b>Impact line (10s):</b> Point at the green strip — "₹X saved, Y litres protected, zero typing for the farmer."</li>
           </ol>
         </details>
